@@ -5,7 +5,7 @@ dropout = 10;
 K = floor(UE_num/groupsize);
 switch mode
      case 'unicast'
-        error('Not finished')
+        main = unicast(UE_num,time,dropnum,dropout,K,'unicast',pptimer);
      case 'greedy' 
         error('Not finished')
      case 'kmeans'
@@ -17,7 +17,7 @@ switch mode
      case 'GRPPD'
         disp('Grouping randomly and Ping-Pong Detection');
         main = simulation(UE_num,time,dropnum,dropout,K,'GRPPD',pptimer);
-    case 'GKPPD'
+     case 'GKPPD'
         disp('Grouping with Ping-Pong Detection and Kmeans.');
         main = simulation(UE_num,time,dropnum,dropout,K,'GKPPD',pptimer);
      case 'GRPPD-UNI'
