@@ -69,11 +69,11 @@ for i=1:UE_num
     gNB(UE(i).now_gNB) = add_remove(gNB(UE(i).now_gNB),UE(i),1);
 end
 
-for i=1:UE_num
-    pos = UE(i).pos;
-    x(i) = pos(1);
-    y(i) = pos(2);
-end
+% for i=1:UE_num
+%     pos = UE(i).pos;
+%     x(i) = pos(1);
+%     y(i) = pos(2);
+% end
 
 %figure(1)
 
@@ -446,10 +446,18 @@ disp('----------------------REPORT----------------------')
 for i = 1:7
      gNB(i)
 end
+
+for i=1:UE_num
+    pos = UE(i).pos;
+    x(i) = pos(1);
+    y(i) = pos(2);
+end
+for i=1:7
+    x(end+1) = gNB(i).pos(1);
+    y(end+1) = gNB(i).pos(2);
+end
 figure(1)
-
-c = gNB_color(UE);
-
+c = gNB_color(UE); 
 scatter(x,y,[],c)
 %UE.SINR
 average_efficiency = 10*total_eff/time;

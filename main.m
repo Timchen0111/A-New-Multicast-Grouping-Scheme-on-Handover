@@ -2,7 +2,7 @@ function main = main(mode,UE_num,time,groupsize,pptimer)
 tic
 dropnum = floor(UE_num/10);
 dropout = 5;
-handover = 3;
+handover = 10;
 K = floor(UE_num/groupsize);
 switch mode
      case 'unicast'

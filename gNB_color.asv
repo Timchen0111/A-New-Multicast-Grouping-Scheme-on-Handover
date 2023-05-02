@@ -19,7 +19,7 @@ function c = gNB_color(UE)
             otherwise
                 error('Wrong gNB')
         end
-    end
     for i=1:7
         c(end+1,:) = [0 0 0]; %gNB:BLACK
     end
+end
