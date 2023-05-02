@@ -459,6 +459,7 @@ end
 figure(1)
 c = gNB_color(UE); 
 scatter(x,y,[],c)
+
 %UE.SINR
 average_efficiency = 10*total_eff/time;
 average_efficiency
