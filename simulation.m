@@ -1,5 +1,6 @@
 function report = simulation(UE_num,time,dropnum,dropout,K,mode,pptimer,handover)
 %Scheme: Add Ping-Pong Detection on grouping
+
 if mode == "GRPPD" 
     GRPPD = true;
 else
@@ -78,8 +79,24 @@ end
 
 change = 0;
 
-%Loop
+for i=1:UE_num
+    pos = UE(i).pos;
+    x(i) = pos(1);
+    y(i) = pos(2);
+end
+for i=1:7
+    x(end+1) = gNB(i).pos(1);
+    y(end+1) = gNB(i).pos(2);
+end
+figure(1)
+c = gNB_color(UE); 
+scatter(x,y,[],c)
+clear x y
 
+%Loop
+for i = 1:7
+     gNB(i)
+end
 for t=1:time %600 %1 minutes
     %Initial
     %disp(t)
@@ -445,7 +462,7 @@ for i=1:7
     x(end+1) = gNB(i).pos(1);
     y(end+1) = gNB(i).pos(2);
 end
-figure(1)
+figure(2)
 c = gNB_color(UE); 
 scatter(x,y,[],c)
 
@@ -453,6 +470,7 @@ scatter(x,y,[],c)
 average_efficiency = 10*total_eff/time;
 average_efficiency
 Regroup_count
+change
 report = average_efficiency;
 %pingpongarray(1)
 

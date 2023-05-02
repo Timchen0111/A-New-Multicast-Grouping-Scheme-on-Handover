@@ -6,7 +6,7 @@ function v = velocity(pos,vv)
     count = 1;
     
     while set == false
-        v(1) = (1/120)*cos(angle);
+        v(1) = (1/120)*cos(angle); %1/120
         v(2) = (1/120)*sin(angle);
         set = boundary(x+v(1),y+v(2));
         count = count+1;

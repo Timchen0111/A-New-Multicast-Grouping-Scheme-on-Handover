@@ -65,8 +65,17 @@ for i=1:UE_num
 end
 
 %Loop
-
-for t=1:time %600 %1 minutes
+for i=1:UE_num
+    pos = UE(i).pos;
+    x(i) = pos(1);
+    y(i) = pos(2);
+end
+x
+y
+for i = 1:7
+    gNB(i)
+end
+for t=1:time %6000 %10 minutes
     %Initial
     T = 10*t;
     if rem(t,100)==0
@@ -206,7 +215,7 @@ disp('----------------------REPORT----------------------')
 % disp('sc_sinr')
 % disp(sc_sinr)
 for i = 1:7
-    gNB(i);
+    gNB(i)
 end
 
 for i=1:UE_num
@@ -214,13 +223,15 @@ for i=1:UE_num
     x(i) = pos(1);
     y(i) = pos(2);
 end
+x
+y
 for i=1:7
     x(end+1) = gNB(i).pos(1);
     y(end+1) = gNB(i).pos(2);
 end
-figure(1)
-c = gNB_color(UE); 
-scatter(x,y,[],c)
+% figure(1)
+% c = gNB_color(UE); 
+% scatter(x,y,[],c)
 
 
 %UE.SINR

@@ -17,10 +17,10 @@ for i=1:7
     end
 end
 %Only when the difference of SINR over 5dB, handoff happened.
-if max_sinr < old_sinr+handover
-     max_sinr = old_sinr;
-     nowgNB = old;
-end
+% if max_sinr < old_sinr+handover
+%     max_sinr = old_sinr;
+%     nowgNB = old;
+% end
 now = [nowgNB max_sinr old_sinr];
 
 
