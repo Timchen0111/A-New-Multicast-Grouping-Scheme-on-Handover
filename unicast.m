@@ -102,26 +102,27 @@ for t=1:time %6000 %10 minutes
         
         %check nowgNB
         old = UE(i).now_gNB;
-        now = now_gNB(UE(i),gNB,noise,handover);
-        UE(i).SINR = now(3);
+        Now = now_gNB(UE(i),gNB,noise,handover);
+        now = Now(1);
+        UE(i).SINR = Now(3);
 
         if UE(i).pptimer>-1 && UE(i).pptimer<pingpong_time
             UE(i).pptimer = UE(i).pptimer+1;
             %disp('--------------Handover Preparation--------------')
         end
 
-        if old ~= now(1) && UE(i).pptimer == -1
+        if old ~= now && UE(i).pptimer == -1
             UE(i).pptimer = 0; %Start SC event
-            UE(i).ppsave = now(1);
+            UE(i).ppsave = now;
         else
 %             if UE(i).pptimer == -1
-%                 %disp('--------------Stay in gNB--------------')
-%                 staytime(1,i) = staytime(1,i)+1;
-%                 stay_sinr = ((sum(staytime)-1)*stay_sinr+UE(i).SINR)/sum(staytime);
-%             else
-%                 sctime(1,i) = sctime(1,i)+1;
-%                 sc_sinr = ((sum(sctime)-1)*sc_sinr+UE(i).SINR)/sum(sctime);                
-%             end
+%                  %disp('--------------Stay in gNB--------------')
+%                  staytime(1,i) = staytime(1,i)+1;
+%                  stay_sinr = ((sum(staytime)-1)*stay_sinr+UE(i).SINR)/sum(staytime);
+%              else
+%                  sctime(1,i) = sctime(1,i)+1;
+%                  sc_sinr = ((sum(sctime)-1)*sc_sinr+UE(i).SINR)/sum(sctime);                
+%              end
         end
         
         %detect pingpong
@@ -147,8 +148,8 @@ for t=1:time %6000 %10 minutes
         %Change nowgNB
         if UE(i).change_admission == true
             handover_num = handover_num+1;
-            UE(i).now_gNB = now(1);
-            UE(i).SINR = now(2);
+            UE(i).now_gNB = now;
+            UE(i).SINR = Now(2);
             gNB(old) = add_remove(gNB(old),UE(i),2);
             if numel(find(gNB(old).waitingUE == i))>0
                 rem_waiting = find(gNB(old).waitingUE == i);               
@@ -185,6 +186,7 @@ for t=1:time %6000 %10 minutes
         %Calculate Efficiency
         efficiency = 0;
         for i = 1:7
+            %gNB(i).groupnum = length(gNB(i).joinUE);
             member_num = zeros(1,gNB(i).groupnum);
             for j = 1:gNB(i).groupnum
                  member_num(j) = nnz(gNB(i).group==j);
