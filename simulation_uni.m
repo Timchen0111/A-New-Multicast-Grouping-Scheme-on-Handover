@@ -1,4 +1,4 @@
-function report = simulation_uni(UE_num,time,dropnum,dropout,K,mode,pptimer)
+function report = simulation_uni(UE_num,time,dropnum,dropout,K,mode,pptimer,handover)
 %Scheme: Add Ping-Pong Detection on grouping
 if mode == "GRPPD" 
     GRPPD = true;
