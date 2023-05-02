@@ -1,5 +1,6 @@
 function report = unicast(UE_num,time,K,mode,pptimer,handover)
 %pingpongarray = zeros(UE_num,1)
+handover_num = 0;
 bw = 1e8;
 Regroup_count = 0;
 total_eff = 0;
@@ -69,7 +70,7 @@ for t=1:time %600 %1 minutes
     %Initial
     T = 10*t;
     if rem(t,100)==0
-        disp(['time:' string(T) 'ms'])
+        %disp(['time:' string(T) 'ms'])
     end
       
     if rem(t,10) == 0
@@ -104,14 +105,14 @@ for t=1:time %600 %1 minutes
             UE(i).pptimer = 0; %Start SC event
             UE(i).ppsave = now(1);
         else
-            if UE(i).pptimer == -1
-                %disp('--------------Stay in gNB--------------')
-                staytime(1,i) = staytime(1,i)+1;
-                stay_sinr = ((sum(staytime)-1)*stay_sinr+UE(i).SINR)/sum(staytime);
-            else
-                sctime(1,i) = sctime(1,i)+1;
-                sc_sinr = ((sum(sctime)-1)*sc_sinr+UE(i).SINR)/sum(sctime);                
-            end
+%             if UE(i).pptimer == -1
+%                 %disp('--------------Stay in gNB--------------')
+%                 staytime(1,i) = staytime(1,i)+1;
+%                 stay_sinr = ((sum(staytime)-1)*stay_sinr+UE(i).SINR)/sum(staytime);
+%             else
+%                 sctime(1,i) = sctime(1,i)+1;
+%                 sc_sinr = ((sum(sctime)-1)*sc_sinr+UE(i).SINR)/sum(sctime);                
+%             end
         end
         
         %detect pingpong
@@ -129,14 +130,14 @@ for t=1:time %600 %1 minutes
                     %disp('------------PINGPONG happened----------------')
                     UE(i).change_admission = false;
                     fail(i) = fail(i)+1; 
-                    UE(i).ppsave = now;
-                    
+                    UE(i).ppsave = now;                  
                     UE(i).pptimer = 0;
                 end
             end
 
         %Change nowgNB
         if UE(i).change_admission == true
+            handover_num = handover_num+1;
             UE(i).now_gNB = now(1);
             UE(i).SINR = now(2);
             gNB(old) = add_remove(gNB(old),UE(i),2);
@@ -226,5 +227,6 @@ scatter(x,y,[],c)
 average_efficiency = 10*total_eff/time;
 average_efficiency
 Regroup_count
+handover_num
 report = [average_efficiency Regroup_count];
 %pingpongarray(1)
