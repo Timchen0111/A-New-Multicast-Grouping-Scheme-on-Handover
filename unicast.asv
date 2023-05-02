@@ -1,4 +1,4 @@
-function report = unicast(UE_num,time,dropnum,dropout,K,mode,pptimer)
+function report = unicast(UE_num,time,K,mode,pptimer,handover)
 %pingpongarray = zeros(UE_num,1)
 bw = 1e8;
 Regroup_count = 0;
@@ -44,7 +44,7 @@ noise = -174+10*log10(bw); %db
 for i=1:UE_num
     X = [inf,inf];
     while boundary(X(1),X(2)) == false
-        X = 400*rand(2,1)-200;
+        X = 1000*rand(2,1)-500;
     end
     UE(i).num = i;
     UE(i).pos = X;%generate random initial position of UEs
@@ -64,12 +64,12 @@ for i=1:UE_num
     y(i) = pos(2);
 end
 
-%figure(1)
+figure(1)
 
-%c = gNB_color(UE);
+c = gNB_color(UE);
 
-%scatter(x,y,[],c)
-%Set velocity
+scatter(x,y,[],c)
+Set velocity
 
 for i=1:UE_num
     UE(i).velocity = velocity(UE(i).pos);
@@ -166,14 +166,12 @@ for t=1:time %600 %1 minutes
     end
 
     for i = 1:7
-        disp(gNB(i))
         for j = 1:numel(gNB(i).joinUE)
             ue = gNB(i).joinUE(1);
             gNB(i) = add_remove(gNB(i),UE(ue),2);
             gNB(i) = add_remove(gNB(i),UE(ue),1);
         end
         gNB(i) = regrouping(gNB(i),K,UE,mode);
-        disp('After regroup')
         gNB(i).groupnum = max(K,numel(gNB(i).joinUE));
     end
     
@@ -185,9 +183,6 @@ for t=1:time %600 %1 minutes
                 gNB(index).worstSINR(i) = 0;
             end
         end
-    end
-    for i = 1:7
-        gNB(i)
     end
         %Calculate Efficiency
         efficiency = 0;
@@ -209,9 +204,6 @@ for t=1:time %600 %1 minutes
             end
         end       
     total_eff = total_eff+efficiency;
-    for i = 1:7
-        gNB(i)
-    end
 end
 disp('----------------------REPORT----------------------')
 % sc_rate = sctime./(sctime+staytime);

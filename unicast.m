@@ -48,7 +48,7 @@ for i=1:UE_num
     end
     UE(i).num = i;
     UE(i).pos = X;%generate random initial position of UEs
-    now_ = now_gNB(UE(i),gNB,noise);
+    now_ = now_gNB(UE(i),gNB,noise,handover);
     UE(i).now_gNB = now_(1);
     UE(i).SINR = now_(2);
     UE(i).change_admission = false;
@@ -64,11 +64,11 @@ for i=1:UE_num
     y(i) = pos(2);
 end
 
-%figure(1)
+figure(1)
 
-%c = gNB_color(UE);
+c = gNB_color(UE);
 
-%scatter(x,y,[],c)
+scatter(x,y,[],c)
 %Set velocity
 
 for i=1:UE_num
@@ -104,7 +104,7 @@ for t=1:time %600 %1 minutes
         
         %check nowgNB
         old = UE(i).now_gNB;
-        now = now_gNB(UE(i),gNB,noise);
+        now = now_gNB(UE(i),gNB,noise,handover);
         UE(i).SINR = now(3);
 
         if UE(i).pptimer>-1 && UE(i).pptimer<pingpong_time

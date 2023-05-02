@@ -61,7 +61,7 @@ for i=1:UE_num
     end
     UE(i).num = i;
     UE(i).pos = X;%generate random initial position of UEs
-    now_ = now_gNB(UE(i),gNB,noise);
+    now_ = now_gNB(UE(i),gNB,noise,handover);
     UE(i).now_gNB = now_(1);
     UE(i).SINR = now_(2);
     UE(i).change_admission = false;
@@ -131,7 +131,7 @@ for t=1:time %600 %1 minutes
         %disp(UE(i).pptimer)
         %The algorithm there is based on "Reducing Ping-Pong Handover Effects In Intra EUTRA Networks".
         old = UE(i).now_gNB;
-        Now = now_gNB(UE(i),gNB,noise);
+        Now = now_gNB(UE(i),gNB,noise,handover);
         now = Now(1);
         UE(i).SINR = Now(3);
 
