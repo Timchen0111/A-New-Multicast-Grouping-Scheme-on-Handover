@@ -444,9 +444,13 @@ disp('----------------------REPORT----------------------')
 % disp('sc_sinr')
 % disp(sc_sinr)
 for i = 1:7
-      gNB(i)
+     gNB(i)
 end
+figure(1)
 
+c = gNB_color(UE);
+
+scatter(x,y,[],c)
 %UE.SINR
 average_efficiency = 10*total_eff/time;
 average_efficiency
