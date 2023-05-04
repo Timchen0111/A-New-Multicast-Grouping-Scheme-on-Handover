@@ -1,6 +1,5 @@
-function report = simulation(UE_num,time,dropnum,dropout,K,mode,pptimer,handover)
+function report = simulation_uni(UE_num,time,dropnum,dropout,K,mode,pptimer,handover)
 %Scheme: Add Ping-Pong Detection on grouping
-
 if mode == "GRPPD" 
     GRPPD = true;
 else
@@ -10,11 +9,12 @@ else
         GRPPD = false;
     end
 end
+
 %pingpongarray = zeros(UE_num,1)
 bw = 1e8;
 Regroup_count = 0;
 total_eff = 0;
-pingpong_time = pptimer;
+pingpong_time = pptimer;%input('timer: ');
 staytime = zeros(1,UE_num);
 sctime = zeros(1,UE_num);
 success = zeros(1,UE_num);
@@ -39,12 +39,9 @@ gNB.joinUE = [];
 gNB.waitingUE = [];
 gNB.scUE = [];
 gNB.group = []; 
+gNB.groupnum = K;
 gNB.worstSINR = zeros(K);
-if GRPPD ==false
-    groupnum = K
-else
-    groupnum = K+1
-end
+
 for i=1:19
     gNB(i).pos = [inf,inf];
     gNB(i).worstSINR = inf;
@@ -72,7 +69,19 @@ for i=1:UE_num
     gNB(UE(i).now_gNB) = add_remove(gNB(UE(i).now_gNB),UE(i),1);
 end
 
+% for i=1:UE_num
+%     pos = UE(i).pos;
+%     x(i) = pos(1);
+%     y(i) = pos(2);
+% end
+
+%figure(1)
+
+%c = gNB_color(UE);
+
+%scatter(x,y,[],c)
 %Set velocity
+
 for i=1:UE_num
     UE(i).velocity = velocity(UE(i).pos);
 end
@@ -94,23 +103,18 @@ scatter(x,y,[],c)
 clear x y
 
 %Loop
-for i = 1:7
-     gNB(i)
-end
+
 for t=1:time %600 %1 minutes
     %Initial
-    %disp(t)
-
     T = 10*t;
     if rem(t,100)==0
         disp(['time:' string(T) 'ms'])
     end
-    %disp(['time:' string(T) 'ms'])
-    %Only change grouping on t%10 = 0
+    %disp(['time:' string(T) 'ms'])    
     if t == 1
         for i = 1:7 
             gNB(i) = regrouping(gNB(i),K,UE,mode);
-        end
+        end        
     end
     
     if rem(t,10) == 0
@@ -118,7 +122,6 @@ for t=1:time %600 %1 minutes
     else
         skip = true;
     end
-
     %Moving stage 
     %disp('--------move stage-------')
     for i=1:UE_num
@@ -140,7 +143,6 @@ for t=1:time %600 %1 minutes
         Now = now_gNB(UE(i),gNB,noise,handover);
         now = Now(1);
         UE(i).SINR = Now(3);
-
         if UE(i).pptimer>-1 && UE(i).pptimer<pingpong_time
             UE(i).pptimer = UE(i).pptimer+1;
             %disp('--------------Handover Preparation--------------')
@@ -179,6 +181,7 @@ for t=1:time %600 %1 minutes
                     UE(i).change_admission = false;
                     fail(i) = fail(i)+1; 
                     UE(i).ppsave = now;
+                    
                     UE(i).pptimer = 0;
                 end
             end
@@ -190,11 +193,12 @@ for t=1:time %600 %1 minutes
             UE(i).SINR = Now(2);
             gNB(old) = add_remove(gNB(old),UE(i),2);
             if numel(find(gNB(old).waitingUE == i))>0
-                rem_waiting = find(gNB(old).waitingUE == i);
+                rem_waiting = find(gNB(old).waitingUE == i);               
                 gNB(old).waitingUE(rem_waiting) = []; 
             end
             gNB(UE(i).now_gNB) = add_remove(gNB(UE(i).now_gNB),UE(i),1);
-        end       
+        end
+        
     end
 
     
@@ -202,13 +206,8 @@ for t=1:time %600 %1 minutes
     if skip == true
         continue
     end
-%     for i = 1:UE_num
-%         %UE(i).SINR = SINR(UE(i),UE(i).now_gNB,gNB,noise);
-%         UE(i).SINR = now_(2);
-%     end
-    
     for index = 1:7
-        for group_now = 1:groupnum
+        for group_now = 1:gNB(index).groupnum
             ingroup = gNB(index).joinUE(find(gNB(index).group == group_now));
             worst = inf;
             for i = 1:numel(ingroup)
@@ -224,7 +223,7 @@ for t=1:time %600 %1 minutes
     %disp('--------dropout stage-------')
     drop_num = zeros(1,7);
     for i = 1:7
-        for group_now = 1:K
+        for group_now = 1:gNB(i).groupnum
             drop_out = [];
             scgroup = [];
             ingroup = gNB(i).joinUE(find(gNB(i).group == group_now));
@@ -271,36 +270,27 @@ for t=1:time %600 %1 minutes
         end
     end
 
-    %To SC group stage
-%         disp(t)
-%         for i = 1:7
-%             gNB(i)
-%         end
-
     %disp('--------to SC group stage-------')
-        if GRPPD == true
-            for i = 1:7
-                gNB(i).joinUE = [gNB(i).joinUE gNB(i).scUE];
-                scnum = numel(gNB(i).scUE);
-                gNB(i).scUE = [];
-                sc(1:scnum) = K+1; 
-                gNB(i).group = [gNB(i).group sc];
+        for i = 1:7
+            gNB(i).joinUE = [gNB(i).joinUE gNB(i).scUE];
+            scnum = numel(gNB(i).scUE);
+            gNB(i).scUE = [];
+            if scnum ~=0
+                sc = gNB(i).groupnum+1:gNB(i).groupnum+scnum;
+            else
                 sc = [];
             end
+            gNB(i).group = [gNB(i).group sc];     %problem
+            sc = [];
+            gNB(i).groupnum = gNB(i).groupnum+scnum;
         end
-%         disp('--------AFTER------')
-%         for i = 1:7
-%             gNB(i)
-%         end
-        %Regrouping stage
 
     %add UE stage
-
     %disp('--------AddUE Stage-------')
         %Update worst SINR
         for index = 1:7
             if regroup(index) == false
-                for group_now = 1:groupnum
+                for group_now = 1:gNB(index).groupnum
                     ingroup = gNB(index).joinUE(find(gNB(index).group == group_now));
                     worst = inf;
                     for i = 1:numel(ingroup)
@@ -313,17 +303,13 @@ for t=1:time %600 %1 minutes
             end
         %Add UE
         approach = 1;
-
+        
         %Approach 1:ADD THE CLOSEST GROUP BUT NOT CUMBRACE OTHER UE
             if regroup(index) == false && approach==1
                 for i = 1:numel(gNB(index).waitingUE)
                     UE_be_added = gNB(index).waitingUE(i);
-                    if GRPPD == true
-                        sinr(1:K+1) = UE(UE_be_added).SINR;
-                    else
-                        sinr(1:K) = UE(UE_be_added).SINR;
-                    end
-                    diff = sinr-gNB(index).worstSINR;
+                    sinr(1:K) = UE(UE_be_added).SINR;
+                    diff = sinr-gNB(index).worstSINR(1:K);
                     if max(diff)>0
                         add_group = find(diff == min(diff(diff>0)));
                     else
@@ -335,13 +321,11 @@ for t=1:time %600 %1 minutes
                         end                        
                     end
                     
-                    start_sc = min(find(gNB(index).group==(K+1)));%PROBLEM!!!
-                    if numel(start_sc) ~= 0 && GRPPD == true
-                        
+                    start_sc = min(find(gNB(index).group>K));%PROBLEM!!!
+                    if numel(start_sc) ~= 0
                         gNB(index).joinUE = [gNB(index).joinUE(1:start_sc-1) UE_be_added gNB(index).joinUE(start_sc:end)];
                         gNB(index).group = [gNB(index).group(1:start_sc-1) add_group gNB(index).group(start_sc:end)];
                     else
-                        
                         gNB(index).joinUE = [gNB(index).joinUE UE_be_added];
                         gNB(index).group = [gNB(index).group add_group];
                     end
@@ -350,14 +334,14 @@ for t=1:time %600 %1 minutes
             end
            
         end
-
+        
         %disp('-----------Regrouping Stage----------')
         
         for i = 1:7
             if regroup(i) == true
                 Regroup_count = Regroup_count+1;
                 if GRPPD == true
-                    scnum = numel(find(gNB(i).group==(K+1)));
+                    scnum = numel(find(gNB(i).group>K));
                 else
                     scnum = 0;
                 end
@@ -368,13 +352,14 @@ for t=1:time %600 %1 minutes
                     gNB(i) = add_remove(gNB(i),UE(ue),2);
                     gNB(i) = add_remove(gNB(i),UE(ue),1);
                 end
-                gNB(i) = regrouping(gNB(i),K,UE,mode);
+                gNB(i) = regrouping(gNB(i),K,UE,mode);%NOW
             end
         end
         %Update worst SINR
         for index = 1:7
-            for group_now = 1:groupnum %K+1
-                ingroup = gNB(index).joinUE(find(gNB(index).group == group_now)); %BUGBUGBUG
+            for group_now = 1:gNB(index).groupnum
+                
+                ingroup = gNB(index).joinUE(find(gNB(index).group == group_now));
                 worst = inf;
                 for i = 1:numel(ingroup)
                     if UE(ingroup(i)).SINR<worst
@@ -396,9 +381,33 @@ for t=1:time %600 %1 minutes
             disp(t)
             error('WRONG UE NUM')
         end
+    %Grouping index adjustment
+    for index = 1:7
+        scindex = min(find(gNB(index).group>K));
+        if  min(gNB(index).group)>K
+            scgroup = gNB(index).group;
+            gNB(index).group = [];
+        else
+            scgroup = gNB(index).group(scindex:end);
+            gNB(index).group(scindex:end) = [];
+        end
+        for i = 1:numel(scgroup)
+            scgroup(i) = K+i;
+        end
+        gNB(index).group = [gNB(index).group scgroup];
+        gNB(index).groupnum = max(gNB(index).group);
+        if numel(gNB(index).groupnum) == 0 || gNB(index).groupnum<K
+            gNB(index).groupnum = K;
+        end
+        gNB(index).worstSINR(gNB(index).groupnum+1:end) = [];
+    end
+
+
+%End loop
+
 %Update worst SINR
     for index = 1:7
-        for group_now = 1:groupnum
+        for group_now = 1:gNB(index).groupnum
             if numel(gNB(index).joinUE) == 0
                 gNB(index).worstSINR(group_now) = inf;
                 continue
@@ -412,30 +421,29 @@ for t=1:time %600 %1 minutes
             end
             gNB(index).worstSINR(group_now) = worst;
         end
+    end
         %Calculate Efficiency
         efficiency = 0;
+        check = 0;
         for i = 1
-            member_num = zeros(1,K);
-            for j = 1:K
-                  member_num(j) = nnz(gNB(i).group==j);
-            end
-            if GRPPD == true
-                member_num(K+1) = nnz(gNB(i).group==K+1);
+            member_num = zeros(1,gNB(i).groupnum);
+            for j = 1:gNB(i).groupnum
+                 member_num(j) = nnz(gNB(i).group==j);
             end
             worstSINR2 = gNB(i).worstSINR;
-            worstSINR2((worstSINR2==inf)) = [];
+            gNB(i).worstSINR(gNB(i).worstSINR==inf) = [];
             member_num(member_num==0) = [];
-            R = rate(10.^(worstSINR2./10),bw);
-            throughput = sum(member_num.*R);          
+            R = rate(10.^(gNB(i).worstSINR./10),bw);
+            throughput = sum(member_num.*R);
+            worstSINR2((worstSINR2==inf)) = [];
+            
             if numel(worstSINR2)>0
                 R2 = rate(10.^(worstSINR2./10),bw);
                 resource = sum(1./R2);
                 efficiency = efficiency+throughput/resource;
             end
-        end        
-    end
+        end       
     total_eff = total_eff+efficiency;
-    %disp('end a time')
 end
 disp('----------------------REPORT----------------------')
 % sc_rate = sctime./(sctime+staytime);
@@ -470,6 +478,5 @@ average_efficiency = 10*total_eff/time;
 average_efficiency
 Regroup_count
 change
-report = average_efficiency;
+report = [average_efficiency Regroup_count];
 %pingpongarray(1)
-

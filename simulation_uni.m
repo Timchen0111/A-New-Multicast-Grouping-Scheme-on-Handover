@@ -425,23 +425,22 @@ for t=1:time %600 %1 minutes
         %Calculate Efficiency
         efficiency = 0;
         check = 0;
-        for i = 1:7
+        for i = 1
             member_num = zeros(1,gNB(i).groupnum);
             for j = 1:gNB(i).groupnum
                  member_num(j) = nnz(gNB(i).group==j);
             end
             worstSINR2 = gNB(i).worstSINR;
-            gNB(i).worstSINR(find(gNB(i).worstSINR==inf)) = 0;
-            gNB(i).worstSINR;
-            R = rate(10.^(gNB(i).worstSINR./10),bw);
-            throughput = sum(member_num.*R); 
             worstSINR2((worstSINR2==inf)) = [];
+            member_num(member_num==0) = [];
+            R = rate(10.^(worstSINR2./10),bw);
+            throughput = sum(member_num.*R);
+            
             
             if numel(worstSINR2)>0
                 R2 = rate(10.^(worstSINR2./10),bw);
                 resource = sum(1./R2);
-                %check = check+numel(gNB(i).joinUE)/UE_num;
-                efficiency = efficiency+sum(throughput/resource)*(numel(gNB(i).joinUE)/UE_num);
+                efficiency = efficiency+throughput/resource;
             end
         end       
     total_eff = total_eff+efficiency;

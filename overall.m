@@ -8,8 +8,8 @@
 % end
 % all = [uni r k gr gk gru gku];
 % writetable(all, 'result.csv');
-parfor i = 1:3
-    main('unicast',100,600,5,20)
+parfor i = 1:4
+    main('kmeans',50,3000,10,20);
 end
 
 

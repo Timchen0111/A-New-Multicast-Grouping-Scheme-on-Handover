@@ -185,24 +185,26 @@ for t=1:time %6000 %10 minutes
     end
         %Calculate Efficiency
         efficiency = 0;
-        for i = 1:7
             %gNB(i).groupnum = length(gNB(i).joinUE);
             member_num = zeros(1,gNB(i).groupnum);
-            for j = 1:gNB(i).groupnum
-                 member_num(j) = nnz(gNB(i).group==j);
+            for j = 1:gNB(1).groupnum
+                 member_num(j) = nnz(gNB(1).group==j);
             end
-            worstSINR2 = gNB(i).worstSINR;
-            gNB(i).worstSINR(find(gNB(i).worstSINR==inf)) = 0;
-            R = rate(10.^(gNB(i).worstSINR./10),bw);
-            throughput = sum(member_num.*R); 
+            worstSINR2 = gNB(1).worstSINR;
             worstSINR2((worstSINR2==inf)) = [];
+            R = rate(10.^(worstSINR2./10),bw);
+            %R = R(1:length(member_num));
+            member_num(member_num==0) = [];
+            throughput = sum(member_num.*R); 
+            
             
             if numel(worstSINR2)>0
                 R2 = rate(10.^(worstSINR2./10),bw);
                 resource = sum(1./R2);
-                efficiency = efficiency+sum(throughput/resource)*(numel(gNB(i).joinUE)/UE_num);
+                efficiency = throughput/resource;
+            else
+                efficiency = 0;
             end
-        end       
     total_eff = total_eff+efficiency;
 end
 disp('----------------------REPORT----------------------')
@@ -231,9 +233,9 @@ for i=1:7
     x(end+1) = gNB(i).pos(1);
     y(end+1) = gNB(i).pos(2);
 end
-% figure(1)
-% c = gNB_color(UE); 
-% scatter(x,y,[],c)
+figure(1)
+c = gNB_color(UE); 
+scatter(x,y,[],c)
 
 
 %UE.SINR
