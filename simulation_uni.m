@@ -424,7 +424,6 @@ for t=1:time %600 %1 minutes
     end
         %Calculate Efficiency
         efficiency = 0;
-        check = 0;
         for i = 1
             member_num = zeros(1,gNB(i).groupnum);
             for j = 1:gNB(i).groupnum
@@ -436,10 +435,8 @@ for t=1:time %600 %1 minutes
             R = rate(10.^(worstSINR2./10),bw);
             throughput = sum(member_num.*R);
             
-            
             if numel(worstSINR2)>0
-                R2 = rate(10.^(worstSINR2./10),bw);
-                resource = sum(1./R2);
+                resource = sum(1./R);
                 efficiency = efficiency+throughput/resource;
             end
         end       

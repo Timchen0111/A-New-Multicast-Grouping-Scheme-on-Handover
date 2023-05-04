@@ -5,12 +5,12 @@ bw = 1e8;
 Regroup_count = 0;
 total_eff = 0;
 pingpong_time = pptimer;%input('timer: ');
-staytime = zeros(1,UE_num);
-sctime = zeros(1,UE_num);
+%staytime = zeros(1,UE_num);
+%sctime = zeros(1,UE_num);
 success = zeros(1,UE_num);
 fail = zeros(1,UE_num);
-stay_sinr = 0;
-sc_sinr = 0;
+%stay_sinr = 0;
+%sc_sinr = 0;
 
 tic; %Fix grouping.
 UE.num = 0;
@@ -65,21 +65,12 @@ for i=1:UE_num
 end
 
 %Loop
-for i=1:UE_num
-    pos = UE(i).pos;
-    x(i) = pos(1);
-    y(i) = pos(2);
-end
-x
-y
-for i = 1:7
-    gNB(i)
-end
+
 for t=1:time %6000 %10 minutes
     %Initial
     T = 10*t;
     if rem(t,100)==0
-        %disp(['time:' string(T) 'ms'])
+        disp(['time:' string(T) 'ms'])
     end
       
     if rem(t,10) == 0
@@ -184,7 +175,7 @@ for t=1:time %6000 %10 minutes
         end
     end
         %Calculate Efficiency
-        efficiency = 0;
+        
             %gNB(i).groupnum = length(gNB(i).joinUE);
             member_num = zeros(1,gNB(i).groupnum);
             for j = 1:gNB(1).groupnum
@@ -192,15 +183,11 @@ for t=1:time %6000 %10 minutes
             end
             worstSINR2 = gNB(1).worstSINR;
             worstSINR2((worstSINR2==inf)) = [];
-            R = rate(10.^(worstSINR2./10),bw);
-            %R = R(1:length(member_num));
-            member_num(member_num==0) = [];
-            throughput = sum(member_num.*R); 
-            
-            
-            if numel(worstSINR2)>0
-                R2 = rate(10.^(worstSINR2./10),bw);
-                resource = sum(1./R2);
+            if ~isempty(worstSINR2)
+                R = rate(10.^(worstSINR2./10),bw);
+                member_num(member_num==0) = [];
+                throughput = sum(member_num.*R); 
+                resource = sum(1./R);
                 efficiency = throughput/resource;
             else
                 efficiency = 0;
