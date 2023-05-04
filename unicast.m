@@ -175,18 +175,12 @@ for t=1:time %6000 %10 minutes
         end
     end
         %Calculate Efficiency
-        
             %gNB(i).groupnum = length(gNB(i).joinUE);
-            member_num = zeros(1,gNB(i).groupnum);
-            for j = 1:gNB(1).groupnum
-                 member_num(j) = nnz(gNB(1).group==j);
-            end
             worstSINR2 = gNB(1).worstSINR;
             worstSINR2((worstSINR2==inf)) = [];
             if ~isempty(worstSINR2)
                 R = rate(10.^(worstSINR2./10),bw);
-                member_num(member_num==0) = [];
-                throughput = sum(member_num.*R); 
+                throughput = sum(R); 
                 resource = sum(1./R);
                 efficiency = throughput/resource;
             else
