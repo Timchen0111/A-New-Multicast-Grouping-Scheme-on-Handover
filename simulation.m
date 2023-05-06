@@ -249,7 +249,7 @@ for t=1:time %600 %1 minutes
                 if abs(sinr(j)-mean(sinr)) > dropout && ppDrop(j) == false
                     drop_out(end+1) = ingroup(j); %Record UEs be dropped out
                 end
-                if ppDrop(j) == 1
+                if ppDrop(j) == 1 && GRPPD == true
                     scgroup(end+1) = ingroup(j);
                 end
             end           
