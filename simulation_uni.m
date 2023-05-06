@@ -357,7 +357,10 @@ for t=1:time %600 %1 minutes
                     gNB(i) = add_remove(gNB(i),UE(ue),2);
                     gNB(i) = add_remove(gNB(i),UE(ue),1);
                 end
-                gNB(i) = regrouping(gNB(i),K,UE,mode);%NOW
+                KK = min(K,length(gNB(i).joinUE));
+                if KK > 0
+                    gNB(i) = regrouping(gNB(i),KK,UE,mode);%NOW
+                end
             end
         end
         %Update worst SINR
@@ -466,6 +469,7 @@ for i=1:UE_num
     pos = UE(i).pos;
     x(i) = pos(1);
     y(i) = pos(2);
+    UE(i).pptimer
 end
 for i=1:7
     x(end+1) = gNB(i).pos(1);

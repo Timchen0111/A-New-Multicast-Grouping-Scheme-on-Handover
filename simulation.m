@@ -240,16 +240,16 @@ for t=1:time %600 %1 minutes
             end
             for j = 1:numel(ingroup)
                 sinr(j) = UE(ingroup(j)).SINR;
-                ppDrop(j) = UE(ingroup(j)).state;
+                ppDrop(j) = UE(ingroup(j)).pptimer;
                 UE(ingroup(j)).ppDrop = false;
             end
             mean(sinr);
             %std(sinr);
             for j = 1:numel(ingroup)
-                if abs(sinr(j)-mean(sinr)) > dropout && ppDrop(j) == false
+                if abs(sinr(j)-mean(sinr)) > dropout && ppDrop(j) == -1
                     drop_out(end+1) = ingroup(j); %Record UEs be dropped out
                 end
-                if ppDrop(j) == 1 && GRPPD == true
+                if ppDrop(j) > -1 && GRPPD == true
                     scgroup(end+1) = ingroup(j);
                 end
             end           
@@ -335,8 +335,7 @@ for t=1:time %600 %1 minutes
                     end
                     
                     start_sc = min(find(gNB(index).group==(K+1)));%PROBLEM!!!
-                    if numel(start_sc) ~= 0 && GRPPD == true
-                        
+                    if numel(start_sc) ~= 0 && GRPPD == true                        
                         gNB(index).joinUE = [gNB(index).joinUE(1:start_sc-1) UE_be_added gNB(index).joinUE(start_sc:end)];
                         gNB(index).group = [gNB(index).group(1:start_sc-1) add_group gNB(index).group(start_sc:end)];
                     else
@@ -367,7 +366,10 @@ for t=1:time %600 %1 minutes
                     gNB(i) = add_remove(gNB(i),UE(ue),2);
                     gNB(i) = add_remove(gNB(i),UE(ue),1);
                 end
-                gNB(i) = regrouping(gNB(i),K,UE,mode);
+                KK = min(K,length(gNB(i).joinUE));
+                if KK > 0
+                    gNB(i) = regrouping(gNB(i),K,UE,mode);
+                end
             end
         end
         %Update worst SINR
