@@ -16,7 +16,7 @@ for i=1:7
         nowgNB = i;
     end
 end
-%Only when the difference of SINR over 5dB, handoff happened.
+%Only when the difference of SINR over handover dB, handoff happened.
 if max_sinr < old_sinr+handover
      max_sinr = old_sinr;
      nowgNB = old;

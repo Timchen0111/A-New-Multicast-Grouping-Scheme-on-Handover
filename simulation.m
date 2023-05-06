@@ -101,7 +101,7 @@ for t=1:time %600 %1 minutes
     %Initial
     %disp(t)
     disp(UE(1).pptimer)
-    disp(UE(1).pos)
+    %disp(UE(1).pos)
     T = 10*t;
     if rem(t,100)==0
         disp(['time:' string(T) 'ms'])
@@ -438,11 +438,11 @@ for t=1:time %600 %1 minutes
     %disp('end a time')
 end
 disp('----------------------REPORT----------------------')
-% sc_rate = sctime./(sctime+staytime);
+sc_rate = sctime./(sctime+staytime);
 % sc_ratio = mean(sc_rate)
-% fail_rate = fail./(success+fail);
+fail_rate = fail./(success+fail);
 % all_fail_rate = sum(fail)./(sum(success)+sum(fail))
-% plotgraph(sc_rate,fail_rate)
+plotgraph(sc_rate,fail_rate)
 % pingpong_rate = all_fail_rate.*sc_ratio
 % disp('stay_sinr')
 % disp(stay_sinr)

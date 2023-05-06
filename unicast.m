@@ -68,6 +68,8 @@ end
 
 for t=1:time %6000 %10 minutes
     %Initial
+    disp(UE(1).pptimer)
+    disp(UE(1).pos)
     T = 10*t;
     if rem(t,100)==0
         disp(['time:' string(T) 'ms'])
