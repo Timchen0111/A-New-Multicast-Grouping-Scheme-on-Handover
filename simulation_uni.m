@@ -237,16 +237,16 @@ for t=1:time %600 %1 minutes
             end
             for j = 1:numel(ingroup)
                 sinr(j) = UE(ingroup(j)).SINR;
-                ppDrop(j) = UE(ingroup(j)).state;
+                ppDrop(j) = UE(ingroup(j)).pptimer;
                 UE(ingroup(j)).ppDrop = false;
             end
             mean(sinr);
             %std(sinr);
             for j = 1:numel(ingroup)
-                if abs(sinr(j)-mean(sinr)) > dropout && ppDrop(j) == false
+                if abs(sinr(j)-mean(sinr)) > dropout && ppDrop(j) == -1
                     drop_out(end+1) = ingroup(j); %Record UEs be dropped out
                 end
-                if ppDrop(j) == 1
+                if ppDrop(j) > -1
                     scgroup(end+1) = ingroup(j);
                 end
             end           

@@ -323,6 +323,7 @@ for t=1:time %600 %1 minutes
                         sinr(1:K) = UE(UE_be_added).SINR;
                     end
                     diff = sinr-gNB(index).worstSINR;
+                    diff = diff(1:K);
                     if max(diff)>0
                         add_group = find(diff == min(diff(diff>0)));
                     else
@@ -473,4 +474,3 @@ Regroup_count
 change
 report = average_efficiency;
 %pingpongarray(1)
-
