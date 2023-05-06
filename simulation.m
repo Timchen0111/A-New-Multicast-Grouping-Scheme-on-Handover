@@ -32,6 +32,8 @@ UE.change_admission = false;
 UE.pptimer = 0;
 UE.ppsave = [];
 UE.ppDrop = false;
+UE.state = 0;
+
 
 gNB.num = 0;
 gNB.pos = [inf,inf];
@@ -68,6 +70,7 @@ for i=1:UE_num
     UE(i).change_admission = false;
     UE(i).pptimer = -1;
     UE(i).ppsave = [];
+    UE(i).state = 0;
     UE(i).ppDrop = false;
     gNB(UE(i).now_gNB) = add_remove(gNB(UE(i).now_gNB),UE(i),1);
 end
@@ -149,6 +152,7 @@ for t=1:time %600 %1 minutes
 
         if old ~= now && UE(i).pptimer == -1
             UE(i).pptimer = 0; %Start SC event
+            UE(i).state = 1;
             UE(i).ppsave = now;
             if GRPPD == true
                 UE(i).ppDrop = true;
@@ -186,6 +190,7 @@ for t=1:time %600 %1 minutes
 
         %Change nowgNB
         if UE(i).change_admission == true
+            UE(i).state = 0;
             change = change+1;
             UE(i).now_gNB = now;
             UE(i).SINR = Now(2);
@@ -456,6 +461,7 @@ for i=1:UE_num
     pos = UE(i).pos;
     x(i) = pos(1);
     y(i) = pos(2);
+    UE(i).pptimer
 end
 for i=1:7
     x(end+1) = gNB(i).pos(1);

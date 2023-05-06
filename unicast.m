@@ -22,6 +22,7 @@ UE.change_admission = false;
 UE.pptimer = 0;
 UE.ppsave = [];
 UE.ppDrop = false;
+UE.state = 0;
 
 gNB.num = 0;
 gNB.pos = [inf,inf];
@@ -56,6 +57,7 @@ for i=1:UE_num
     UE(i).pptimer = -1;
     UE(i).ppsave = [];
     UE(i).ppDrop = false;
+    UE(i).state = 0;
     gNB(UE(i).now_gNB) = add_remove(gNB(UE(i).now_gNB),UE(i),1);
 end
 %Set velocity
@@ -69,7 +71,6 @@ end
 for t=1:time %6000 %10 minutes
     %Initial
     disp(UE(1).pptimer)
-    disp(UE(1).pos)
     T = 10*t;
     if rem(t,100)==0
         disp(['time:' string(T) 'ms'])
@@ -106,6 +107,7 @@ for t=1:time %6000 %10 minutes
 
         if old ~= now && UE(i).pptimer == -1
             UE(i).pptimer = 0; %Start SC event
+            UE(i).state = 1;
             UE(i).ppsave = now;
         else
 %             if UE(i).pptimer == -1
@@ -142,6 +144,7 @@ for t=1:time %6000 %10 minutes
         if UE(i).change_admission == true
             handover_num = handover_num+1;
             UE(i).now_gNB = now;
+            UE(i).state = 0;
             UE(i).SINR = Now(2);
             gNB(old) = add_remove(gNB(old),UE(i),2);
             if numel(find(gNB(old).waitingUE == i))>0

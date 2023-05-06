@@ -9,8 +9,13 @@
 % all = [uni r k gr gk gru gku];
 % writetable(all, 'result.csv');
 parfor i = 1:4
-    
-    main('GKPPD',50,3000,10,20);
+    %a1(i,:) = main('unicast',50,3000,10,20);
+    %a2(i,:) = main('random',50,3000,10,20);
+    %a3(i,:) = main('kmeans',50,3000,10,20);
+    main('GRPPD',50,3000,10,20);
+    %a5(i,:) = main('GKPPD',50,3000,10,20);
+    %a6(i,:) = main('GRPPD-UNI',50,3000,10,20);
+    %a7(i,:) = main('GKPPD-UNI',50,3000,10,20);
 end
 
 
