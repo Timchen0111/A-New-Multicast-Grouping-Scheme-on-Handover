@@ -109,7 +109,6 @@ clear x y
 for t=1:time %600 %1 minutes
     %Initial
     disp(UE(1).pptimer)
-    disp(UE(1).pos)
     T = 10*t;
     if rem(t,100)==0
         disp(['time:' string(T) 'ms'])
@@ -156,9 +155,9 @@ for t=1:time %600 %1 minutes
             UE(i).pptimer = 0; %Start SC event
             UE(i).state = 1;
             UE(i).ppsave = now;
-            if GRPPD == true
-                UE(i).ppDrop = true;
-            end
+%             if GRPPD == true
+%                 UE(i).ppDrop = true;
+%             end
         else
             if UE(i).pptimer == -1
                 %disp('--------------Stay in gNB--------------')
@@ -238,7 +237,7 @@ for t=1:time %600 %1 minutes
             end
             for j = 1:numel(ingroup)
                 sinr(j) = UE(ingroup(j)).SINR;
-                ppDrop(j) = UE(ingroup(j)).ppDrop;
+                ppDrop(j) = UE(ingroup(j)).state;
                 UE(ingroup(j)).ppDrop = false;
             end
             mean(sinr);
@@ -247,7 +246,7 @@ for t=1:time %600 %1 minutes
                 if abs(sinr(j)-mean(sinr)) > dropout && ppDrop(j) == false
                     drop_out(end+1) = ingroup(j); %Record UEs be dropped out
                 end
-                if ppDrop(j) == true
+                if ppDrop(j) == 1
                     scgroup(end+1) = ingroup(j);
                 end
             end           

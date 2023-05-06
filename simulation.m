@@ -68,10 +68,11 @@ for i=1:UE_num
     UE(i).now_gNB = now_(1);
     UE(i).SINR = now_(2);
     UE(i).change_admission = false;
+
     UE(i).pptimer = -1;
     UE(i).ppsave = [];
     UE(i).state = 0;
-    UE(i).ppDrop = false;
+    %UE(i).ppDrop = false;
     gNB(UE(i).now_gNB) = add_remove(gNB(UE(i).now_gNB),UE(i),1);
 end
 
@@ -154,9 +155,9 @@ for t=1:time %600 %1 minutes
             UE(i).pptimer = 0; %Start SC event
             UE(i).state = 1;
             UE(i).ppsave = now;
-            if GRPPD == true
-                UE(i).ppDrop = true;
-            end
+%             if GRPPD == true
+%                 UE(i).ppDrop = true;
+%             end
         else
             if UE(i).pptimer == -1
                 %disp('--------------Stay in gNB--------------')
@@ -239,7 +240,7 @@ for t=1:time %600 %1 minutes
             end
             for j = 1:numel(ingroup)
                 sinr(j) = UE(ingroup(j)).SINR;
-                ppDrop(j) = UE(ingroup(j)).ppDrop;
+                ppDrop(j) = UE(ingroup(j)).state;
                 UE(ingroup(j)).ppDrop = false;
             end
             mean(sinr);
@@ -248,19 +249,17 @@ for t=1:time %600 %1 minutes
                 if abs(sinr(j)-mean(sinr)) > dropout && ppDrop(j) == false
                     drop_out(end+1) = ingroup(j); %Record UEs be dropped out
                 end
-                if ppDrop(j) == true
+                if ppDrop(j) == 1
                     scgroup(end+1) = ingroup(j);
                 end
             end           
             for k = 1:numel(drop_out)                
-                drop_out;
                 index = drop_out(k);
                 gNB(UE(index).now_gNB) = add_remove(gNB(UE(index).now_gNB),UE(index),2);
                 gNB(UE(index).now_gNB) = add_remove(gNB(UE(index).now_gNB),UE(index),1);
                 drop_num(i) = drop_num(i)+1;
             end
             for k = 1:numel(scgroup)
-                scgroup;
                 index = scgroup(k);
                 gNB(UE(index).now_gNB) = add_remove(gNB(UE(index).now_gNB),UE(index),2);
                 gNB(UE(index).now_gNB) = add_remove(gNB(UE(index).now_gNB),UE(index),3);
@@ -294,12 +293,6 @@ for t=1:time %600 %1 minutes
                 sc = [];
             end
         end
-%         disp('--------AFTER------')
-%         for i = 1:7
-%             gNB(i)
-%         end
-        %Regrouping stage
-
     %add UE stage
 
     %disp('--------AddUE Stage-------')
