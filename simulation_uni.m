@@ -357,10 +357,9 @@ for t=1:time %600 %1 minutes
                     gNB(i) = add_remove(gNB(i),UE(ue),2);
                     gNB(i) = add_remove(gNB(i),UE(ue),1);
                 end
-                KK = min(K,length(gNB(i).joinUE));
-                if KK > 0
-                    gNB(i) = regrouping(gNB(i),KK,UE,mode);%NOW
-                end
+            
+                gNB(i) = regrouping(gNB(i),KK,UE,mode);%NOW
+               
             end
         end
         %Update worst SINR
