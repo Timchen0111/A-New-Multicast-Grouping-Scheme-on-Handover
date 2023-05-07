@@ -349,7 +349,7 @@ for t=1:time %600 %1 minutes
             end           
         end
         
-        if mode == 'unicast'
+        if mode == "unicast"
             for i = 1:7
                 regroup(i) = false;
                 gNB(i).group = 1:length(gNB(i).joinUE);
