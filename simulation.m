@@ -346,12 +346,18 @@ for t=1:time %600 %1 minutes
                     end
                 end
                 gNB(index).waitingUE = [];
+            end           
+        end
+        
+        if mode == 'unicast'
+            for i = 1:7
+                regroup(i) = false;
+                gNB(i).group = 1:length(gNB(i).joinUE);
             end
-           
         end
 
-        %disp('-----------Regrouping Stage----------')
-        
+        %disp('-----------Regrouping Stage----------')        
+
         for i = 1:7
             if regroup(i) == true
                 Regroup_count = Regroup_count+1;
@@ -367,9 +373,7 @@ for t=1:time %600 %1 minutes
                     gNB(i) = add_remove(gNB(i),UE(ue),2);
                     gNB(i) = add_remove(gNB(i),UE(ue),1);
                 end
-                
-                gNB(i) = regrouping(gNB(i),K,UE,mode);
-                
+                gNB(i) = regrouping(gNB(i),K,UE,mode);               
             end
         end
         %Update worst SINR
@@ -397,22 +401,7 @@ for t=1:time %600 %1 minutes
             disp(t)
             error('WRONG UE NUM')
         end
-%Update worst SINR
-    for index = 1:7
-        for group_now = 1:groupnum
-            if numel(gNB(index).joinUE) == 0
-                gNB(index).worstSINR(group_now) = inf;
-                continue
-            end
-            ingroup = gNB(index).joinUE(find(gNB(index).group == group_now));
-            worst = inf;
-            for i = 1:numel(ingroup)
-                if UE(ingroup(i)).SINR<worst
-                    worst = UE(ingroup(i)).SINR;
-                end
-            end
-            gNB(index).worstSINR(group_now) = worst;
-        end
+        
         %Calculate Efficiency
         efficiency = 0;
         for i = 1
@@ -433,7 +422,6 @@ for t=1:time %600 %1 minutes
                 efficiency = efficiency+throughput/resource;
             end
         end        
-    end
     total_eff = total_eff+efficiency;
     %disp('end a time')
 end

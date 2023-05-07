@@ -6,7 +6,7 @@ handover = 10;
 %K = floor(UE_num/groupsize);
 switch mode
      case 'unicast'
-        main = unicast(UE_num,time,K,'unicast',pptimer,handover);
+        main = simulation(UE_num,time,dropnum,dropout,K,'unicast',pptimer,handover);
      case 'broadcast'
      case 'kmeans'
         disp('K-means');

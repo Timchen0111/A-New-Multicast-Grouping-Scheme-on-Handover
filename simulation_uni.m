@@ -358,7 +358,7 @@ for t=1:time %600 %1 minutes
                     gNB(i) = add_remove(gNB(i),UE(ue),1);
                 end
             
-                gNB(i) = regrouping(gNB(i),KK,UE,mode);%NOW
+                gNB(i) = regrouping(gNB(i),K,UE,mode);%NOW
                
             end
         end
