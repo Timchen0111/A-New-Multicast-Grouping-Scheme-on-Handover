@@ -43,9 +43,12 @@ gNB.scUE = [];
 gNB.group = []; 
 gNB.worstSINR = zeros(K);
 if GRPPD ==false
-    groupnum = K
+    groupnum = K;
 else
-    groupnum = K+1
+    groupnum = K+1;
+end
+if mode == "unicast"
+    groupnum = UE_num;
 end
 for i=1:19
     gNB(i).pos = [inf,inf];
@@ -322,6 +325,9 @@ for t=1:time %600 %1 minutes
                     else
                         sinr(1:K) = UE(UE_be_added).SINR;
                     end
+                    if mode == "unicast"
+                        sinr(1:groupnum) = UE(UE_be_added).SINR;
+                    end
                     diff = sinr-gNB(index).worstSINR;
                     diff = diff(1:K);
                     if max(diff)>0
@@ -402,27 +408,41 @@ for t=1:time %600 %1 minutes
             error('WRONG UE NUM')
         end
         
-        %Calculate Efficiency
-        efficiency = 0;
-        for i = 1
-            member_num = zeros(1,K);
-            for j = 1:K
-                  member_num(j) = nnz(gNB(i).group==j);
-            end
-            if GRPPD == true
-                member_num(K+1) = nnz(gNB(i).group==K+1);
-            end
-            worstSINR2 = gNB(i).worstSINR;
+        if mode == "unicast"
+            worstSINR2 = gNB(1).worstSINR;
             worstSINR2((worstSINR2==inf)) = [];
-            member_num(member_num==0) = [];
-            R = rate(10.^(worstSINR2./10),bw);
-            throughput = sum(member_num.*R);          
-            if numel(worstSINR2)>0
+            if ~isempty(worstSINR2)
+                R = rate(10.^(worstSINR2./10),bw);
+                throughput = sum(R); 
                 resource = sum(1./R);
-                efficiency = efficiency+throughput/resource;
+                efficiency = throughput/resource;
+            else
+                efficiency = 0;
             end
-        end        
-    total_eff = total_eff+efficiency;
+            total_eff = total_eff+efficiency;
+        else
+            %Calculate Efficiency
+            efficiency = 0;
+            for i = 1
+                member_num = zeros(1,K);
+                for j = 1:K
+                      member_num(j) = nnz(gNB(i).group==j);
+                end
+                if GRPPD == true
+                    member_num(K+1) = nnz(gNB(i).group==K+1);
+                end
+                worstSINR2 = gNB(i).worstSINR;
+                worstSINR2((worstSINR2==inf)) = [];
+                member_num(member_num==0) = [];
+                R = rate(10.^(worstSINR2./10),bw);
+                throughput = sum(member_num.*R);          
+                if numel(worstSINR2)>0
+                    resource = sum(1./R);
+                    efficiency = efficiency+throughput/resource;
+                end
+            end        
+            total_eff = total_eff+efficiency;
+        end
     %disp('end a time')
 end
 disp('----------------------REPORT----------------------')
@@ -444,7 +464,6 @@ for i=1:UE_num
     pos = UE(i).pos;
     x(i) = pos(1);
     y(i) = pos(2);
-    UE(i).pptimer
 end
 for i=1:7
     x(end+1) = gNB(i).pos(1);

@@ -5,12 +5,12 @@ bw = 1e8;
 Regroup_count = 0;
 total_eff = 0;
 pingpong_time = pptimer;%input('timer: ');
-staytime = zeros(1,UE_num);
-sctime = zeros(1,UE_num);
+%staytime = zeros(1,UE_num);
+%sctime = zeros(1,UE_num);
 success = zeros(1,UE_num);
 fail = zeros(1,UE_num);
-stay_sinr = 0;
-sc_sinr = 0;
+%stay_sinr = 0;
+%sc_sinr = 0;
 
 tic; %Fix grouping.
 UE.num = 0;
@@ -66,11 +66,11 @@ end
 
 %Loop
 
-for t=1:time %600 %1 minutes
+for t=1:time %6000 %10 minutes
     %Initial
     T = 10*t;
     if rem(t,100)==0
-        %disp(['time:' string(T) 'ms'])
+        disp(['time:' string(T) 'ms'])
     end
       
     if rem(t,10) == 0
@@ -93,26 +93,27 @@ for t=1:time %600 %1 minutes
         
         %check nowgNB
         old = UE(i).now_gNB;
-        now = now_gNB(UE(i),gNB,noise,handover);
-        UE(i).SINR = now(3);
+        Now = now_gNB(UE(i),gNB,noise,handover);
+        now = Now(1);
+        UE(i).SINR = Now(3);
 
         if UE(i).pptimer>-1 && UE(i).pptimer<pingpong_time
             UE(i).pptimer = UE(i).pptimer+1;
             %disp('--------------Handover Preparation--------------')
         end
 
-        if old ~= now(1) && UE(i).pptimer == -1
+        if old ~= now && UE(i).pptimer == -1
             UE(i).pptimer = 0; %Start SC event
-            UE(i).ppsave = now(1);
+            UE(i).ppsave = now;
         else
 %             if UE(i).pptimer == -1
-%                 %disp('--------------Stay in gNB--------------')
-%                 staytime(1,i) = staytime(1,i)+1;
-%                 stay_sinr = ((sum(staytime)-1)*stay_sinr+UE(i).SINR)/sum(staytime);
-%             else
-%                 sctime(1,i) = sctime(1,i)+1;
-%                 sc_sinr = ((sum(sctime)-1)*sc_sinr+UE(i).SINR)/sum(sctime);                
-%             end
+%                  %disp('--------------Stay in gNB--------------')
+%                  staytime(1,i) = staytime(1,i)+1;
+%                  stay_sinr = ((sum(staytime)-1)*stay_sinr+UE(i).SINR)/sum(staytime);
+%              else
+%                  sctime(1,i) = sctime(1,i)+1;
+%                  sc_sinr = ((sum(sctime)-1)*sc_sinr+UE(i).SINR)/sum(sctime);                
+%              end
         end
         
         %detect pingpong
@@ -138,8 +139,8 @@ for t=1:time %600 %1 minutes
         %Change nowgNB
         if UE(i).change_admission == true
             handover_num = handover_num+1;
-            UE(i).now_gNB = now(1);
-            UE(i).SINR = now(2);
+            UE(i).now_gNB = now;
+            UE(i).SINR = Now(2);
             gNB(old) = add_remove(gNB(old),UE(i),2);
             if numel(find(gNB(old).waitingUE == i))>0
                 rem_waiting = find(gNB(old).waitingUE == i);               
@@ -174,24 +175,23 @@ for t=1:time %600 %1 minutes
         end
     end
         %Calculate Efficiency
-        efficiency = 0;
-        for i = 1:7
+        
+            %gNB(i).groupnum = length(gNB(i).joinUE);
             member_num = zeros(1,gNB(i).groupnum);
-            for j = 1:gNB(i).groupnum
-                 member_num(j) = nnz(gNB(i).group==j);
+            for j = 1:gNB(1).groupnum
+                 member_num(j) = nnz(gNB(1).group==j);
             end
-            worstSINR2 = gNB(i).worstSINR;
-            gNB(i).worstSINR(find(gNB(i).worstSINR==inf)) = 0;
-            R = rate(10.^(gNB(i).worstSINR./10),bw);
-            throughput = sum(member_num.*R); 
+            worstSINR2 = gNB(1).worstSINR;
             worstSINR2((worstSINR2==inf)) = [];
-            
-            if numel(worstSINR2)>0
-                R2 = rate(10.^(worstSINR2./10),bw);
-                resource = sum(1./R2);
-                efficiency = efficiency+sum(throughput/resource)*(numel(gNB(i).joinUE)/UE_num);
+            if ~isempty(worstSINR2)
+                R = rate(10.^(worstSINR2./10),bw);
+                member_num(member_num==0) = [];
+                throughput = sum(member_num.*R); 
+                resource = sum(1./R);
+                efficiency = throughput/resource;
+            else
+                efficiency = 0;
             end
-        end       
     total_eff = total_eff+efficiency;
 end
 disp('----------------------REPORT----------------------')
@@ -214,6 +214,8 @@ for i=1:UE_num
     x(i) = pos(1);
     y(i) = pos(2);
 end
+x
+y
 for i=1:7
     x(end+1) = gNB(i).pos(1);
     y(end+1) = gNB(i).pos(2);
