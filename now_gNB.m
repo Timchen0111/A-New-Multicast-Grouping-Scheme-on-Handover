@@ -33,7 +33,7 @@ if state == 0
          nowgNB = old;
     end
 else
-    if target_sinr > old_sinr
+    if target_sinr > old_sinr+handover
         max_sinr = target_sinr;
         nowgNB = target;
     end
