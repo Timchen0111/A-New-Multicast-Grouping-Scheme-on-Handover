@@ -14,7 +14,7 @@ else
 end
 %sinr = SINR(UE,tgNB_num,gNB,noise) 
 for i=1:7
-    sinr = SINR(UE,i,gNB,noise);
+    sinr = calculate_SINR(UE,i,gNB,noise);
     if i == old
         old_sinr = sinr;
     end
