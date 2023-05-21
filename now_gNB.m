@@ -1,6 +1,6 @@
 %Where are you now?
 function now = now_gNB(UE,gNB,noise,handover)
-clear sinr
+
 max_sinr = -inf;
 old_sinr = -inf;
 old = UE.now_gNB;

@@ -1,7 +1,7 @@
 function main = main(mode,UE_num,time,K,pptimer)
 tic
 dropnum = floor(UE_num/10);
-dropout = 5;
+dropout = 10;
 handover = 10;
 %K = floor(UE_num/groupsize);
 switch mode

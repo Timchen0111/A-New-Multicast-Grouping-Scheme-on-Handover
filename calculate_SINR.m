@@ -10,10 +10,13 @@ for i=1:19
     pl(i) = 0;
 end
 
+fad = randn(1, 19);
+sigma = 4;
+fad_ = sigma.*fad;
+
 for i=1:19
     result = pathloss(35,1.5,5,distance(i),fc); %Unit:db
-    sigma = 4;
-    fad = normrnd(0,sigma);
+    fad = fad_(i);
     pl(i) = fad-result; %pathloss, unit:db
     %disp('---------------')
     %disp(fad)

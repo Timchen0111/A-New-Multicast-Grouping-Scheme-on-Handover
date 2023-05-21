@@ -108,7 +108,7 @@ clear x y
 
 for t=1:time %600 %1 minutes
     %Initial
-    disp(UE(1).pptimer)
+
     T = 10*t;
     if rem(t,100)==0
         disp(['time:' string(T) 'ms'])
