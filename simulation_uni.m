@@ -450,8 +450,8 @@ for t=1:time %600 %1 minutes
     total_eff = total_eff+efficiency;
 end
 disp('----------------------REPORT----------------------')
-% sc_rate = sctime./(sctime+staytime);
-% sc_ratio = mean(sc_rate)
+sc_rate = sctime./(sctime+staytime);
+sc_ratio = sc_rate(1);
 % fail_rate = fail./(success+fail);
 % all_fail_rate = sum(fail)./(sum(success)+sum(fail))
 % plotgraph(sc_rate,fail_rate)
@@ -480,8 +480,8 @@ scatter(x,y,[],c)
 
 %UE.SINR
 average_efficiency = 10*total_eff/time;
-average_efficiency
-Regroup_count
-change
-report = [average_efficiency Regroup_count];
+%average_efficiency
+%Regroup_count
+%change
+report = [average_efficiency Regroup_count change sc_ratio];
 %pingpongarray(1)
