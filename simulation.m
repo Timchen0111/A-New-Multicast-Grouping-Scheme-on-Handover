@@ -415,6 +415,7 @@ for t=1:time %600 %1 minutes
                 throughput = sum(R); 
                 resource = sum(1./R);
                 efficiency = throughput/resource;
+                all_throughput = all_throughput + throughput;
             else
                 efficiency = 0;
             end
