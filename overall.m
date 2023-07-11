@@ -1,15 +1,15 @@
 clear all
-parfor i = 1:6
+parfor i = 1:12
     if i <= 2
-        a1(i,:) = main('unicast',50,3000,10,32,10);
+        a1(i,:) = main('unicast',50,3,10,32,10);
         a2(i,:) = main('random',50,3,1,10,10);
         a3(i,:) = main('kmeans',50,3,1,10,10);
-    elseif i > 4 
-        a4(i-4,:) = main('GRPPD',50,3,5,1,10);
-        a5(i-4,:) = main('GKPPD',50,3,5,1,10);        
+    elseif i > 8
+        a4(i-8,:) = main('GRPPD',50,3,5,1,10);
+        a5(i-8,:) = main('GKPPD',50,3,5,1,10);        
     else 
-        a6(i-2,:) = main('GRPPD-UNI',50,3,5,1,10);
-        a7(i-2,:) = main('GKPPD-UNI',50,3,5,1,10);
+        a6(i-4,:) = main('GRPPD-UNI',50,3,5,1,10);
+        a7(i-4,:) = main('GKPPD-UNI',50,3,5,1,10);
     end
 end
 % end
