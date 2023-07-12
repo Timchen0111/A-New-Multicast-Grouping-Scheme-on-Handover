@@ -1,8 +1,7 @@
 function sinr = calculate_SINR(UE,tgNB_num,gNB,noise) 
 %UE:UE(struct),tgNB_num:num of tgNB(int),gNB:all of tgNB(array of struct gNB)
-%noise(double),fading(random variable,parameter double)
-tgNB = gNB(tgNB_num);
 
+tgNB = gNB(tgNB_num);
 fc = 3;%frequency
 
 for i=1:19
