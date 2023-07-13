@@ -566,3 +566,5 @@ average_throughput = 10*all_throughput/time;
 report = [average_throughput Regroup_count change sc_ratio];
 %pingpongarray(1)
 
+
+
