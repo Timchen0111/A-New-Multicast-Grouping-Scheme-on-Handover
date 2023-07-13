@@ -480,7 +480,7 @@ for t=1:time %600 %1 minutes
         end
         
         %Bandwidth Allocation
-        gNB = bw_allocation(gNB);
+        gNB = bw_allocation(gNB,bw);
 
         %Calculate efficiency
         if mode == "unicast"
