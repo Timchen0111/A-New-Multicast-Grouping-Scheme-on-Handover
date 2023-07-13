@@ -463,9 +463,8 @@ for t=1:time %600 %1 minutes
             end
         end
         %Update worst SINR
-
         for index = 1:7
-            groupnum = gNB(index).groupnum;
+            groupnum = max(gNB(index).group);
             for group_now = 1:groupnum
                 ingroup = gNB(index).joinUE(find(gNB(index).group == group_now)); %BUGBUGBUG
                 worst = inf;
@@ -473,14 +472,13 @@ for t=1:time %600 %1 minutes
                     if UE(ingroup(i)).SINR<worst
                         worst = UE(ingroup(i)).SINR;
                     end
-                end
-                
+                end                
                 gNB(index).worstSINR(group_now) = worst;
             end
         end
         
         %Bandwidth Allocation
-        gNB = bw_allocation(gNB);
+        gNB = bw_allocation(gNB,bw);
 
         %Calculate efficiency
         if mode == "unicast"
@@ -511,20 +509,24 @@ for t=1:time %600 %1 minutes
                         member_num(j) = 1;
                     end
                 end
-                worstSINR2 = gNB(i).worstSINR;
-                worstSINR2((worstSINR2==inf)) = [];
-                member_num(member_num==0) = [];
-                R = rate(10.^(worstSINR2./10));
-                disp(member_num)
-                disp(R)
-                throughput = sum(member_num.*R);          
-                if numel(worstSINR2)>0
-                    resource = sum(1./R);
-                    efficiency = efficiency+throughput/resource;
+                %worstSINR2 = gNB(i).worstSINR;
+                %worstSINR2((worstSINR2==inf)) = [];
+                %member_num(member_num==0) = [];
+                R = zeros(1,length(member_num));
+                for j = 1:length(member_num)
+                    B = gNB(i).bw(j);
+                    SINR = gNB(i).worstSINR(j);
+                     if SINR == inf
+                        continue
+                    end
+                    R(j) = rate(10.^(SINR/10),B);
+                end
+                %R = rate(10.^(worstSINR2./10),B);
+                throughput = sum(member_num.*R);
+                if ~isempty(gNB(i).worstSINR)
                     all_throughput = all_throughput + throughput;
                 end
             end        
-            total_eff = total_eff+efficiency;
         end
     %disp('end a time')
 end
@@ -557,12 +559,10 @@ c = gNB_color(UE);
 scatter(x,y,[],c)
 
 %UE.SINR
-average_efficiency = 10*total_eff/time;
 average_throughput = 10*all_throughput/time;
-average_resource = average_throughput/average_efficiency;
 % average_efficiency
 % Regroup_count
 % change
-report = [average_efficiency average_throughput average_resource Regroup_count change sc_ratio];
+report = [average_throughput Regroup_count change sc_ratio];
 %pingpongarray(1)
 
