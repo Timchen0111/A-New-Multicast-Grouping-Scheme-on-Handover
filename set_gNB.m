@@ -12,6 +12,7 @@ for i=1:7
     gNB(i).groupnum = K;
     for j=1:K
         gNB(i).worstSINR(j) = inf;
+        gNB(i).bw(j) = inf;
     end
 end
 
