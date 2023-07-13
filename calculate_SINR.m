@@ -28,7 +28,6 @@ for i=1:19
         interference = interference+10^(pl(i)/10);
     end
 end
-
 Noise = 10^(noise/10);
 
 sinr = pl(tgNB_num)-10*log10(interference+Noise); %db

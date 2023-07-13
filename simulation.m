@@ -1,14 +1,20 @@
 function report = simulation(UE_num,time,dropnum,dropout,K,mode,pptimer,handover)
 %Scheme: Add Ping-Pong Detection on grouping
-if mode == "GRPPD" 
+if mode == "GRPPD" || mode == "GRPPD_uni" || mode == "GKPPD" || mode == "GKPPD_uni"
     GRPPD = true;
 else
-    if mode == "GKPPD"
-        GRPPD = true;
+    GRPPD = false;
+end
+if mode == "GRPPD_uni"
+    uni = true;
+else
+    if mode == "GKPPD_uni"
+        uni = true;
     else
-        GRPPD = false;
+        uni = false;
     end
 end
+
 all_throughput = 0;
 %pingpongarray = zeros(UE_num,1)
 bw = 1e8;
@@ -119,7 +125,6 @@ for t=1:time %600 %1 minutes
             gNB(i) = regrouping(gNB(i),K,UE,mode);
         end
     end
-    
     if rem(t,10) == 0
         skip = false;
     else
@@ -157,9 +162,6 @@ for t=1:time %600 %1 minutes
             UE(i).pptimer = 0; %Start SC event
             UE(i).state = 1;
             UE(i).ppsave = now;
-%             if GRPPD == true
-%                 UE(i).ppDrop = true;
-%             end
         else
             if UE(i).pptimer == -1
                 %disp('--------------Stay in gNB--------------')
@@ -247,10 +249,12 @@ for t=1:time %600 %1 minutes
             end
             mean(sinr);
             %std(sinr);
+            
+            
             for j = 1:numel(ingroup)
                 if abs(sinr(j)-mean(sinr)) > dropout && ppDrop(j) == -1
                     drop_out(end+1) = ingroup(j); %Record UEs be dropped out
-                end
+                end         
                 if ppDrop(j) > -1 && GRPPD == true
                     scgroup(end+1) = ingroup(j);
                 end
@@ -286,13 +290,30 @@ for t=1:time %600 %1 minutes
 
     %disp('--------to SC group stage-------')
         if GRPPD == true
-            for i = 1:7
-                gNB(i).joinUE = [gNB(i).joinUE gNB(i).scUE];
-                scnum = numel(gNB(i).scUE);
-                gNB(i).scUE = [];
-                sc(1:scnum) = K+1; 
-                gNB(i).group = [gNB(i).group sc];
-                sc = [];
+            if uni == false
+                for i = 1:7
+                    gNB(i).joinUE = [gNB(i).joinUE gNB(i).scUE];
+                    scnum = numel(gNB(i).scUE);
+                    gNB(i).scUE = [];
+                    sc(1:scnum) = K+1; 
+                    gNB(i).group = [gNB(i).group sc];
+                    sc = [];
+                end
+            else
+                for i = 1:7
+                    gNB(i).joinUE = [gNB(i).joinUE gNB(i).scUE];
+                    scnum = numel(gNB(i).scUE);
+                    gNB(i).scUE = [];
+                    if scnum ~=0
+                        sc = gNB(i).groupnum+1:gNB(i).groupnum+scnum;
+                    else
+                        sc = [];
+                    end
+
+                    gNB(i).group = [gNB(i).group sc];     %problem
+                    sc = [];
+                    gNB(i).groupnum = gNB(i).groupnum+scnum;
+                end
             end
         end
     %add UE stage
@@ -313,44 +334,72 @@ for t=1:time %600 %1 minutes
                 end
             end
         %Add UE
-        approach = 1;
+        
 
-        %Approach 1:ADD THE CLOSEST GROUP BUT NOT CUMBRACE OTHER UE
-            if regroup(index) == false && approach==1
-                for i = 1:numel(gNB(index).waitingUE)
-                    UE_be_added = gNB(index).waitingUE(i);
-                    if GRPPD == true
-                        sinr(1:K+1) = UE(UE_be_added).SINR;
-                    else
-                        sinr(1:K) = UE(UE_be_added).SINR;
-                    end
-                    if mode == "unicast"
-                        sinr(1:groupnum) = UE(UE_be_added).SINR;
-                    end
-                    diff = sinr-gNB(index).worstSINR;
-                    diff = diff(1:K);
-                    if max(diff)>0
-                        add_group = find(diff == min(diff(diff>0)));
-                    else
-                        if min(diff) == -inf
-                            empty = find(diff == min(diff));
-                            add_group = empty(1);
+       
+            if regroup(index) == false
+                if uni == false
+                    for i = 1:numel(gNB(index).waitingUE)
+                        UE_be_added = gNB(index).waitingUE(i);
+                        if GRPPD == true
+                            sinr(1:K+1) = UE(UE_be_added).SINR;
                         else
-                            add_group = find(diff==max(diff));
-                        end                        
-                    end
-                    
-                    start_sc = min(find(gNB(index).group==(K+1)));%PROBLEM!!!
-                    if numel(start_sc) ~= 0 && GRPPD == true                        
-                        gNB(index).joinUE = [gNB(index).joinUE(1:start_sc-1) UE_be_added gNB(index).joinUE(start_sc:end)];
-                        gNB(index).group = [gNB(index).group(1:start_sc-1) add_group gNB(index).group(start_sc:end)];
-                    else
+                            sinr(1:K) = UE(UE_be_added).SINR;
+                        end
+                        if mode == "unicast"
+                            sinr(1:groupnum) = UE(UE_be_added).SINR;
+                        end
+                        diff = sinr-gNB(index).worstSINR;
+                        diff = diff(1:K);
+                        if max(diff)>0
+                            add_group = find(diff == min(diff(diff>0)));
+                        else
+                            if min(diff) == -inf
+                                empty = find(diff == min(diff));
+                                add_group = empty(1);
+                            else
+                                add_group = find(diff==max(diff));
+                            end                        
+                        end
                         
-                        gNB(index).joinUE = [gNB(index).joinUE UE_be_added];
-                        gNB(index).group = [gNB(index).group add_group];
+                        start_sc = min(find(gNB(index).group==(K+1)));%PROBLEM!!!
+                        if numel(start_sc) ~= 0 && GRPPD == true                        
+                            gNB(index).joinUE = [gNB(index).joinUE(1:start_sc-1) UE_be_added gNB(index).joinUE(start_sc:end)];
+                            gNB(index).group = [gNB(index).group(1:start_sc-1) add_group gNB(index).group(start_sc:end)];
+                        else
+                            
+                            gNB(index).joinUE = [gNB(index).joinUE UE_be_added];
+                            gNB(index).group = [gNB(index).group add_group];
+                        end
                     end
+                    gNB(index).waitingUE = [];
+                else
+                    for i = 1:numel(gNB(index).waitingUE)
+                        UE_be_added = gNB(index).waitingUE(i);
+                        sinr(1:K) = UE(UE_be_added).SINR;
+                        diff = sinr-gNB(index).worstSINR(1:K);
+                        if max(diff)>0
+                            add_group = find(diff == min(diff(diff>0)));
+                        else
+                            if min(diff) == -inf
+                                empty = find(diff == min(diff));
+                                add_group = empty(1);
+                            else
+                                add_group = find(diff==max(diff));
+                            end                        
+                        end
+                        
+                        start_sc = min(find(gNB(index).group>K));%PROBLEM!!!
+                        if numel(start_sc) ~= 0
+                            gNB(index).joinUE = [gNB(index).joinUE(1:start_sc-1) UE_be_added gNB(index).joinUE(start_sc:end)];
+                            gNB(index).group = [gNB(index).group(1:start_sc-1) add_group gNB(index).group(start_sc:end)];
+                        else
+                            gNB(index).joinUE = [gNB(index).joinUE UE_be_added];
+                            gNB(index).group = [gNB(index).group add_group];
+                        end
+                    end
+                    gNB(index).waitingUE = [];
                 end
-                gNB(index).waitingUE = [];
             end           
         end
         
@@ -407,11 +456,34 @@ for t=1:time %600 %1 minutes
             error('WRONG UE NUM')
         end
         
+        if uni == true
+            %Grouping index adjustment
+            for index = 1:7
+                scindex = min(find(gNB(index).group>K));
+                if  min(gNB(index).group)>K
+                    scgroup = gNB(index).group;
+                    gNB(index).group = [];
+                else
+                    scgroup = gNB(index).group(scindex:end);
+                    gNB(index).group(scindex:end) = [];
+                end
+                for i = 1:numel(scgroup)
+                    scgroup(i) = K+i;
+                end
+                gNB(index).group = [gNB(index).group scgroup];
+                gNB(index).groupnum = max(gNB(index).group);
+                if numel(gNB(index).groupnum) == 0 || gNB(index).groupnum<K
+                    gNB(index).groupnum = K;
+                end
+                gNB(index).worstSINR(gNB(index).groupnum+1:end) = [];
+            end
+        end 
+        
         if mode == "unicast"
             worstSINR2 = gNB(1).worstSINR;
             worstSINR2((worstSINR2==inf)) = [];
             if ~isempty(worstSINR2)
-                R = rate(10.^(worstSINR2./10),bw);
+                R = rate(10.^(worstSINR2./10));
                 throughput = sum(R); 
                 resource = sum(1./R);
                 efficiency = throughput/resource;
@@ -434,7 +506,7 @@ for t=1:time %600 %1 minutes
                 worstSINR2 = gNB(i).worstSINR;
                 worstSINR2((worstSINR2==inf)) = [];
                 member_num(member_num==0) = [];
-                R = rate(10.^(worstSINR2./10),bw);
+                R = rate(10.^(worstSINR2./10));
                 throughput = sum(member_num.*R);          
                 if numel(worstSINR2)>0
                     resource = sum(1./R);

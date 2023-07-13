@@ -3,7 +3,7 @@ function report = simulation_uni(UE_num,time,dropnum,dropout,K,mode,pptimer,hand
 if mode == "GRPPD" 
     GRPPD = true;
 else
-    if mode == "GKPPD"
+    if mode == "GKPPD" 
         GRPPD = true;
     else
         GRPPD = false;
@@ -258,7 +258,6 @@ for t=1:time %600 %1 minutes
                 drop_num(i) = drop_num(i)+1;
             end
             for k = 1:numel(scgroup)
-                scgroup;
                 index = scgroup(k);
                 gNB(UE(index).now_gNB) = add_remove(gNB(UE(index).now_gNB),UE(index),2);
                 gNB(UE(index).now_gNB) = add_remove(gNB(UE(index).now_gNB),UE(index),3);

@@ -22,10 +22,10 @@ switch mode
         main = simulation(UE_num,time,dropnum,dropout,K,'GKPPD',pptimer,handover);
      case 'GRPPD-UNI'
         disp('Grouping randomly with Ping-Pong Detection. Using unicast for UE in HO.');
-        main = simulation_uni(UE_num,time,dropnum,dropout,K,'GRPPD',pptimer,handover);
+        main = simulation(UE_num,time,dropnum,dropout,K,'GRPPD_uni',pptimer,handover);
      case 'GKPPD-UNI'
         disp('Grouping with Ping-Pong Detection and Kmeans. Using unicast for UE in HO.');
-        main = simulation_uni(UE_num,time,dropnum,dropout,K,'GKPPD',pptimer,handover);
+        main = simulation(UE_num,time,dropnum,dropout,K,'GKPPD_uni',pptimer,handover);
      otherwise
         error( 'WRONG USE.' )
 end

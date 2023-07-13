@@ -1,6 +1,12 @@
 function g = regrouping(g,K,allUE,type)
     %random give
     %disp('-----------------REGROUPING!------------------')
+    if type == "GRPPD_uni"
+        type = 'GRPPD';
+    end
+    if type == "GKPPD_uni"
+        type = 'GKPPD';
+    end
     switch type
         case 'unicast'
             g.joinUE = g.waitingUE;
