@@ -1,6 +1,5 @@
 function report = simulation(UE_num,time,dropnum,dropout,K,mode,pptimer,handover)
 %Scheme: Add Ping-Pong Detection on grouping
-
 if mode == "GRPPD" || mode == "GRPPD_uni" || mode == "GKPPD" || mode == "GKPPD_uni"
     GRPPD = true;
 else
@@ -28,7 +27,6 @@ success = zeros(1,UE_num);
 fail = zeros(1,UE_num);
 stay_sinr = 0;
 sc_sinr = 0;
-
 tic; %Fix grouping.
 UE.num = 0;
 UE.pos = [0,0];
