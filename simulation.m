@@ -476,8 +476,8 @@ for t=1:time %600 %1 minutes
         end
         
         %Bandwidth Allocation
-        gNB = bw_allocation(gNB,bw);
-
+        gNB = bw_allocation(gNB,bw,K);
+        
         %Calculate efficiency
         if mode == "unicast"
             worstSINR2 = gNB(1).worstSINR;
@@ -502,9 +502,11 @@ for t=1:time %600 %1 minutes
                 if GRPPD == true && uni == false
                     member_num(K+1) = nnz(gNB(i).group==K+1);
                 end
-                if uni == true && groupnum > K
-                    for j = K+1:length(member_num)
-                        member_num(j) = 1;
+                if uni == true
+                    if groupnum>K
+                        for j = K+1:length(member_num)
+                            member_num(j) = 1;
+                        end
                     end
                 end
                 %worstSINR2 = gNB(i).worstSINR;
@@ -563,6 +565,7 @@ average_throughput = 10*all_throughput/time;
 % change
 report = [average_throughput Regroup_count change sc_ratio];
 %pingpongarray(1)
+average_throughput
 
 
 

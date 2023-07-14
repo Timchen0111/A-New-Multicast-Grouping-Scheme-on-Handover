@@ -1,4 +1,4 @@
-function g = bw_allocation(g,bw)
+function g = bw_allocation(g,bw,K)
 for i = 1:7
     group_rate = zeros(1,max(g(i).group));
     for group = 1:max(g(i).group)
@@ -20,5 +20,8 @@ for i = 1:7
     end
     allsum = sum(bw_ratio);
     bw_allocate = (bw/allsum)*bw_ratio;
-    g(i).bw = bw_allocate;
+    g(i).bw = zeros(1,K);
+    for  j = 1:length(bw_allocate)
+        g(i).bw(j) = bw_allocate(j);
+    end
 end
