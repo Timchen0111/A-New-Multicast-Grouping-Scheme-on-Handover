@@ -7,7 +7,6 @@ dropout = 5;
 switch mode
      case 'unicast'
         main = simulation(UE_num,time,dropnum,dropout,K,'unicast',pptimer,handover);
-     case 'broadcast'
      case 'kmeans'
         disp('K-means');
         main = simulation(UE_num,time,dropnum,dropout,K,'kmeans',pptimer,handover);
@@ -25,6 +24,9 @@ switch mode
         main = simulation(UE_num,time,dropnum,dropout,K,'GRPPD_uni',pptimer,handover);
      case 'GKPPD-UNI'
         disp('Grouping with Ping-Pong Detection and Kmeans. Using unicast for UE in HO.');
+        main = simulation(UE_num,time,dropnum,dropout,K,'GKPPD_uni',pptimer,handover);
+     case 'dynamicK'
+        disp('Dynamic Kmeans')
         main = simulation(UE_num,time,dropnum,dropout,K,'GKPPD_uni',pptimer,handover);
      otherwise
         error( 'WRONG USE.' )

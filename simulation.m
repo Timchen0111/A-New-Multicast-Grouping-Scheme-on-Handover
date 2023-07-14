@@ -1,6 +1,6 @@
 function report = simulation(UE_num,time,dropnum,dropout,K,mode,pptimer,handover)
 %Scheme: Add Ping-Pong Detection on grouping
-if mode == "GRPPD" || mode == "GRPPD_uni" || mode == "GKPPD" || mode == "GKPPD_uni"
+if mode == "GRPPD" || mode == "GRPPD_uni" || mode == "GKPPD" || mode == "GKPPD_uni" || mode == "dynamicK"
     GRPPD = true;
 else
     GRPPD = false;
@@ -17,7 +17,7 @@ end
 
 all_throughput = 0;
 %pingpongarray = zeros(UE_num,1)
-bw = 1e8;
+
 Regroup_count = 0;
 total_eff = 0;
 pingpong_time = pptimer;
