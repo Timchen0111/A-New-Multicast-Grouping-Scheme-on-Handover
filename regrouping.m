@@ -92,4 +92,7 @@ function g = regrouping(g,K,allUE,type)
             scg(1:scnum) = K+1;
             g.group = transpose(idx);
             g.group = [g.group scg];
-     end
+    end
+    if ~isempty(g.waitingUE)
+        error('!!!')
+    end
