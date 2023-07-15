@@ -1,9 +1,14 @@
-function k = decision_k(array,K)
+function k = decision_k(array)
+    if length(array) == 1
+        k = 1;
+        return
+    end
     idx = [];
     %k = 0;
+    K = length(array);
     dsum = zeros(1,K);
     for i = 1:K
-        idx(i,:) = kmeans(array',i);
+        idx(i,:) = kmeans(array,i);
         for j = 1:i
             member = array(find(idx(i,:)==j));
             center = mean(member);
@@ -12,8 +17,8 @@ function k = decision_k(array,K)
         end
     end
     %disp(idx)
-    figure(1)
-    plot(1:K,dsum)
+    %figure(1)
+    %plot(1:K,dsum)
     x = dsum(1);
     y = dsum(K);
     
@@ -28,4 +33,3 @@ function k = decision_k(array,K)
     if length(k)>1
         k = k(1);
     end
-    

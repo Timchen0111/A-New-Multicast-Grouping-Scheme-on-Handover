@@ -460,10 +460,11 @@ for t=1:time %600 %1 minutes
                 gNB(index).worstSINR(gNB(index).groupnum+1:end) = [];
             end
         end
+
         %Update worst SINR
         for index = 1:7
             groupnum = max(gNB(index).group);
-            for group_now = 1:groupnum
+            for group_now = 1:length(gNB(index).worstSINR)
                 ingroup = gNB(index).joinUE(find(gNB(index).group == group_now)); %BUGBUGBUG
                 worst = inf;
                 for i = 1:numel(ingroup)
@@ -477,7 +478,15 @@ for t=1:time %600 %1 minutes
         
         %Bandwidth Allocation
         gNB = bw_allocation(gNB,bw,K);
-        
+
+        for i = 1:7
+            for j = 1:length(gNB(i).worstSINR)
+                if gNB(i).worstSINR(j) < inf && isempty(find(gNB(i).group==j))
+                    disp(gNB(i))
+                    error('ERROR.')
+                end
+            end
+        end
         %Calculate efficiency
         if mode == "unicast"
             worstSINR2 = gNB(1).worstSINR;
@@ -493,7 +502,6 @@ for t=1:time %600 %1 minutes
             end
             total_eff = total_eff+efficiency;
         else
-            efficiency = 0;
             for i = 1
                 member_num = zeros(1,gNB(i).groupnum);
                 for j = 1:K
