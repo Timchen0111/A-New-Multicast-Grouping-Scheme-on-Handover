@@ -19,7 +19,7 @@ all_throughput = 0;
 %pingpongarray = zeros(UE_num,1)
 
 Regroup_count = 0;
-total_eff = 0;
+
 pingpong_time = pptimer;
 staytime = zeros(1,UE_num);
 sctime = zeros(1,UE_num);
@@ -331,7 +331,6 @@ for t=1:time %600 %1 minutes
             end
             groupnum = max(gNB(index).group);
             for group_now = 1:groupnum
-                disp(gNB(index))
                 ingroup = gNB(index).joinUE(find(gNB(index).group == group_now));
                 worst = inf;
                 for i = 1:numel(ingroup)
@@ -451,7 +450,7 @@ for t=1:time %600 %1 minutes
         end
         if sumue ~= UE_num
             for i = 1:7
-                gNB(i)
+                gNB(i);
             end
             disp(t)
             error('WRONG UE NUM')

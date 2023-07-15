@@ -93,6 +93,3 @@ function g = regrouping(g,K,allUE,type)
             g.group = transpose(idx);
             g.group = [g.group scg];
     end
-    if ~isempty(g.waitingUE)
-        error('!!!')
-    end
