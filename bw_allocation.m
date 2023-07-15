@@ -2,6 +2,7 @@ function g = bw_allocation(g,bw,K)
 for i = 1:7
     group_rate = zeros(1,max(g(i).group));
     for group = 1:max(g(i).group)
+        disp(g(i))
         SINR = g(i).worstSINR(group);
         if SINR == inf
             continue
