@@ -106,9 +106,7 @@ scatter(x,y,[],c)
 clear x y
 
 %Loop
-for i = 1:7
-     gNB(i)
-end
+
 for t=1:time %600 %1 minutes
     %Initial
     %disp(t)
@@ -335,16 +333,20 @@ for t=1:time %600 %1 minutes
                 if uni == false
                     for i = 1:numel(gNB(index).waitingUE)
                         UE_be_added = gNB(index).waitingUE(i);
+                        
                         if GRPPD == true
                             sinr(1:K+1) = UE(UE_be_added).SINR;
                         else
                             sinr(1:K) = UE(UE_be_added).SINR;
                         end
                         if mode == "unicast"
-                            sinr(1:groupnum) = UE(UE_be_added).SINR;
+                            sinr = [];
+                            sinr(1:length(gNB(index).worstSINR)) = UE(UE_be_added).SINR;
                         end
                         diff = sinr-gNB(index).worstSINR;
-                        diff = diff(1:K);
+                        if mode ~= "unicast"
+                            diff = diff(1:K);
+                        end
                         if max(diff)>0
                             add_group = find(diff == min(diff(diff>0)));
                         else
@@ -370,7 +372,8 @@ for t=1:time %600 %1 minutes
                 else
                     for i = 1:numel(gNB(index).waitingUE)
                         UE_be_added = gNB(index).waitingUE(i);
-                        sinr(1:K) = UE(UE_be_added).SINR;
+                        sinr = [];
+                        sinr(1:K) = UE(UE_be_added).SINR;  
                         diff = sinr-gNB(index).worstSINR(1:K);
                         if max(diff)>0
                             add_group = find(diff == min(diff(diff>0)));
@@ -463,10 +466,18 @@ for t=1:time %600 %1 minutes
         %Update worst SINR
         for index = 1:7
             groupnum = max(gNB(index).group);
-            for group_now = 1:groupnum
-                ingroup = gNB(index).joinUE(find(gNB(index).group == group_now)); %BUGBUGBUG
+            gNB(index).worstSINR = zeros(1,max(K,groupnum));
+            if isempty(length(gNB(index).worstSINR))
+                gNB(index).worstSINR = zeros(1,1);
+            end
+            for group_now = 1:max(groupnum,K)
+                ingroup = gNB(index).joinUE(find(gNB(index).group == group_now));
                 worst = inf;
-                for i = 1:numel(ingroup)
+                if isempty(ingroup)
+                    gNB(index).worstSINR(group_now) = worst;
+                    continue
+                end
+                for i = 1:length(ingroup)
                     if UE(ingroup(i)).SINR<worst
                         worst = UE(ingroup(i)).SINR;
                     end
@@ -476,24 +487,27 @@ for t=1:time %600 %1 minutes
         end
         
         %Bandwidth Allocation
-        gNB = bw_allocation(gNB,bw,K);
-        
+        if mode == "dynamic_k"
+            gNB = bw_allocation(gNB,bw,-1);
+        else
+            gNB = bw_allocation(gNB,bw,K);
+        end
         %Calculate efficiency
         if mode == "unicast"
             worstSINR2 = gNB(1).worstSINR;
             worstSINR2((worstSINR2==inf)) = [];
             if ~isempty(worstSINR2)
-                R = rate(10.^(worstSINR2./10));
+                %R = rate(10.^(worstSINR2./10));
+                R = zeros(1,length(gNB(1).joinUE));
+                for j = 1:length(gNB(1).joinUE)
+                    B = gNB(i).bw(j);
+                    SINR = gNB(i).worstSINR(j);
+                    R(j) = rate(10.^(SINR/10),B);
+                end
                 throughput = sum(R); 
-                resource = sum(1./R);
-                efficiency = throughput/resource;
                 all_throughput = all_throughput + throughput;
-            else
-                efficiency = 0;
             end
-            total_eff = total_eff+efficiency;
         else
-            efficiency = 0;
             for i = 1
                 member_num = zeros(1,gNB(i).groupnum);
                 for j = 1:K
@@ -563,9 +577,9 @@ average_throughput = 10*all_throughput/time;
 % average_efficiency
 % Regroup_count
 % change
-report = [average_throughput Regroup_count change sc_ratio];
+report = average_throughput;
+%report = [average_throughput Regroup_count change sc_ratio];
 %pingpongarray(1)
-average_throughput
 
 
 
