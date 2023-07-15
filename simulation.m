@@ -1,6 +1,6 @@
 function report = simulation(UE_num,time,dropnum,dropout,K,mode,pptimer,handover)
 %Scheme: Add Ping-Pong Detection on grouping
-if mode == "GRPPD" || mode == "GRPPD_uni" || mode == "GKPPD" || mode == "GKPPD_uni" || mode == "dynamicK"
+if mode == "GRPPD" || mode == "GRPPD_uni" || mode == "GKPPD" || mode == "GKPPD_uni" || mode == "dynamic_k"
     GRPPD = true;
 else
     GRPPD = false;
@@ -19,7 +19,7 @@ all_throughput = 0;
 %pingpongarray = zeros(UE_num,1)
 
 Regroup_count = 0;
-total_eff = 0;
+
 pingpong_time = pptimer;
 staytime = zeros(1,UE_num);
 sctime = zeros(1,UE_num);
@@ -106,7 +106,9 @@ scatter(x,y,[],c)
 clear x y
 
 %Loop
-
+for i = 1:7
+     gNB(i)
+end
 for t=1:time %600 %1 minutes
     %Initial
     %disp(t)
@@ -274,12 +276,6 @@ for t=1:time %600 %1 minutes
         end
     end
 
-    %To SC group stage
-%         disp(t)
-%         for i = 1:7
-%             gNB(i)
-%         end
-
     %disp('--------to SC group stage-------')
         if GRPPD == true
             if uni == false
@@ -325,25 +321,39 @@ for t=1:time %600 %1 minutes
                     gNB(index).worstSINR(group_now) = worst;
                 end
             end
+        end
         %Add UE
-        
+        %Update worst SINR
+        for index = 1:7
+            if isempty(gNB(index).joinUE)
+                gNB(index).worstSINR = [];
+                continue
+            end
+            groupnum = max(gNB(index).group);
+            for group_now = 1:groupnum
+                ingroup = gNB(index).joinUE(find(gNB(index).group == group_now));
+                worst = inf;
+                for i = 1:numel(ingroup)
+                    if UE(ingroup(i)).SINR<worst
+                        worst = UE(ingroup(i)).SINR;
+                    end
+                end                
+                gNB(index).worstSINR(group_now) = worst;
+            end
+            gNB(index).worstSINR(groupnum+1:end) = [];
+        end
 
-       
+       for index = 1:7
             if regroup(index) == false
                 if uni == false
                     for i = 1:numel(gNB(index).waitingUE)
                         UE_be_added = gNB(index).waitingUE(i);
-                        
-                        if GRPPD == true
-                            sinr(1:K+1) = UE(UE_be_added).SINR;
-                        else
-                            sinr(1:K) = UE(UE_be_added).SINR;
-                        end
-                        if mode == "unicast"
-                            sinr = [];
-                            sinr(1:length(gNB(index).worstSINR)) = UE(UE_be_added).SINR;
-                        end
+                        sinr = [];
+                        sinr(1:length(gNB(index).worstSINR)) = UE(UE_be_added).SINR;
                         diff = sinr-gNB(index).worstSINR;
+                        if length(diff) <K
+                            diff(length(diff)+1:K) = -inf;
+                        end
                         if mode ~= "unicast"
                             diff = diff(1:K);
                         end
@@ -373,8 +383,12 @@ for t=1:time %600 %1 minutes
                     for i = 1:numel(gNB(index).waitingUE)
                         UE_be_added = gNB(index).waitingUE(i);
                         sinr = [];
-                        sinr(1:K) = UE(UE_be_added).SINR;  
-                        diff = sinr-gNB(index).worstSINR(1:K);
+                        sinr(1:length(gNB(index).worstSINR)) = UE(UE_be_added).SINR;
+                        diff = sinr-gNB(index).worstSINR;
+                        if length(diff) < K
+                            diff(length(diff)+1:K) = -inf;
+                        end                      
+                        diff = diff(1:K);
                         if max(diff)>0
                             add_group = find(diff == min(diff(diff>0)));
                         else
@@ -397,9 +411,10 @@ for t=1:time %600 %1 minutes
                     end
                     gNB(index).waitingUE = [];
                 end
+                
             end           
         end
-        
+
         if mode == "unicast"
             for i = 1:7
                 regroup(i) = false;
@@ -435,7 +450,7 @@ for t=1:time %600 %1 minutes
         end
         if sumue ~= UE_num
             for i = 1:7
-                gNB(i)
+                gNB(i);
             end
             disp(t)
             error('WRONG UE NUM')
@@ -463,58 +478,51 @@ for t=1:time %600 %1 minutes
                 gNB(index).worstSINR(gNB(index).groupnum+1:end) = [];
             end
         end
+
         %Update worst SINR
         for index = 1:7
-            groupnum = max(gNB(index).group);
-            gNB(index).worstSINR = zeros(1,max(K,groupnum));
-            if isempty(length(gNB(index).worstSINR))
-                gNB(index).worstSINR = zeros(1,1);
+            if isempty(gNB(index).joinUE)
+                gNB(index).worstSINR = [];
+                continue
             end
-            for group_now = 1:max(groupnum,K)
-                ingroup = gNB(index).joinUE(find(gNB(index).group == group_now));
+            groupnum = max(gNB(index).group);
+            for group_now = 1:groupnum
+                ingroup = gNB(index).joinUE(find(gNB(index).group == group_now)); %BUGBUGBUG
                 worst = inf;
-                if isempty(ingroup)
-                    gNB(index).worstSINR(group_now) = worst;
-                    continue
-                end
-                for i = 1:length(ingroup)
+                for i = 1:numel(ingroup)
                     if UE(ingroup(i)).SINR<worst
                         worst = UE(ingroup(i)).SINR;
                     end
                 end                
                 gNB(index).worstSINR(group_now) = worst;
             end
+            gNB(index).worstSINR(groupnum+1:end) = [];
         end
         
         %Bandwidth Allocation
-        if mode == "dynamic_k"
-            gNB = bw_allocation(gNB,bw,-1);
-        else
-            gNB = bw_allocation(gNB,bw,K);
-        end
+        gNB = bw_allocation(gNB,bw,K);
+
         %Calculate efficiency
         if mode == "unicast"
-            worstSINR2 = gNB(1).worstSINR;
-            worstSINR2((worstSINR2==inf)) = [];
-            if ~isempty(worstSINR2)
-                %R = rate(10.^(worstSINR2./10));
-                R = zeros(1,length(gNB(1).joinUE));
-                for j = 1:length(gNB(1).joinUE)
-                    B = gNB(i).bw(j);
-                    SINR = gNB(i).worstSINR(j);
-                    R(j) = rate(10.^(SINR/10),B);
+            for i = 1:7
+                worstSINR2 = gNB(i).worstSINR;
+                worstSINR2((worstSINR2==inf)) = [];
+                if ~isempty(worstSINR2)
+                    R = zeros(1,length(gNB(i).joinUE));
+                    for j = 1:length(gNB(i).joinUE)
+                        B = gNB(i).bw(j);
+                        SINR = gNB(i).worstSINR(j);
+                        R(j) = rate(10.^(SINR/10),B);
+                    end
+                    throughput = sum(R); 
+                    all_throughput = all_throughput + throughput;
                 end
-                throughput = sum(R); 
-                all_throughput = all_throughput + throughput;
             end
         else
-            for i = 1
-                member_num = zeros(1,gNB(i).groupnum);
-                for j = 1:K
-                      member_num(j) = nnz(gNB(i).group==j);
-                end
-                if GRPPD == true && uni == false
-                    member_num(K+1) = nnz(gNB(i).group==K+1);
+            for i = 1:7
+                member_num = zeros(1,max(gNB(i).group));
+                for j = 1:max(gNB(i).group)
+                    member_num(j) = nnz(gNB(i).group==j);
                 end
                 if uni == true
                     if groupnum>K
@@ -523,14 +531,11 @@ for t=1:time %600 %1 minutes
                         end
                     end
                 end
-                %worstSINR2 = gNB(i).worstSINR;
-                %worstSINR2((worstSINR2==inf)) = [];
-                %member_num(member_num==0) = [];
                 R = zeros(1,length(member_num));
                 for j = 1:length(member_num)
                     B = gNB(i).bw(j);
                     SINR = gNB(i).worstSINR(j);
-                     if SINR == inf
+                    if SINR == inf
                         continue
                     end
                     R(j) = rate(10.^(SINR/10),B);
@@ -542,7 +547,7 @@ for t=1:time %600 %1 minutes
                 end
             end        
         end
-    %disp('end a time')
+    
 end
 disp('----------------------REPORT----------------------')
 sc_rate = sctime./(sctime+staytime);
@@ -577,9 +582,12 @@ average_throughput = 10*all_throughput/time;
 % average_efficiency
 % Regroup_count
 % change
-report = average_throughput;
-%report = [average_throughput Regroup_count change sc_ratio];
+report = [average_throughput Regroup_count change sc_ratio];
 %pingpongarray(1)
+average_throughput
+
+
+
 
 
 

@@ -25,7 +25,7 @@ switch mode
      case 'GKPPD-UNI'
         disp('Grouping with Ping-Pong Detection and Kmeans. Using unicast for UE in HO.');
         main = simulation(UE_num,time,dropnum,dropout,K,'GKPPD_uni',pptimer,handover);
-     case 'dynamicK'
+     case 'dynamic_k'
         disp('Dynamic Kmeans')
         main = simulation(UE_num,time,dropnum,dropout,K,'dynamic_k',pptimer,handover);
      otherwise
