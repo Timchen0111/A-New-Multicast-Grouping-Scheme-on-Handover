@@ -87,7 +87,7 @@ function g = regrouping(g,K,allUE,type)
             %if siz(1) < K
             %   K = siz(1);
             %end
-            K = decision_k(sinr_array,length(g.joinUE));
+            K = decision_k(sinr_array);
             idx = kmeans(sinr_array,K);
             scg(1:scnum) = K+1;
             g.group = transpose(idx);
