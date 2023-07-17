@@ -69,6 +69,7 @@ function g = regrouping(g,K,allUE,type)
             scg(1:scnum) = K+1;
             g.group = transpose(idx);
             g.group = [g.group scg];
+            g
         case  'dynamic_k'
             if size(g.waitingUE) == 0
                 return

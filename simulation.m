@@ -307,21 +307,6 @@ for t=1:time %600 %1 minutes
     %add UE stage
 
     %disp('--------AddUE Stage-------')
-        %Update worst SINR
-        for index = 1:7
-            if regroup(index) == false
-                for group_now = 1:groupnum
-                    ingroup = gNB(index).joinUE(find(gNB(index).group == group_now));
-                    worst = inf;
-                    for i = 1:numel(ingroup)
-                        if UE(ingroup(i)).SINR<worst
-                            worst = UE(ingroup(i)).SINR;
-                        end
-                    end
-                    gNB(index).worstSINR(group_now) = worst;
-                end
-            end
-        end
         %Add UE
         %Update worst SINR
         for index = 1:7
@@ -410,8 +395,7 @@ for t=1:time %600 %1 minutes
                         end
                     end
                     gNB(index).waitingUE = [];
-                end
-                
+                end              
             end           
         end
 
@@ -423,7 +407,6 @@ for t=1:time %600 %1 minutes
         end
 
         %disp('-----------Regrouping Stage----------')        
-
         for i = 1:7
             if regroup(i) == true
                 Regroup_count = Regroup_count+1;
@@ -585,9 +568,3 @@ average_throughput = 10*all_throughput/time;
 report = [average_throughput Regroup_count change sc_ratio];
 %pingpongarray(1)
 average_throughput
-
-
-
-
-
-
