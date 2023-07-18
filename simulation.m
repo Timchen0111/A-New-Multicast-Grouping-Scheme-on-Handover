@@ -1,4 +1,4 @@
-function report = simulation(UE_num,time,dropnum,dropout,K,mode,pptimer,handover)
+function report = simulation(UE_num,time,dropnum,dropout,K,mode,pptimer,handover,bwmode)
 %Scheme: Add Ping-Pong Detection on grouping
 if mode == "GRPPD" || mode == "GRPPD_uni" || mode == "GKPPD" || mode == "GKPPD_uni" || mode == "dynamic_k"
     GRPPD = true;
@@ -483,7 +483,8 @@ for t=1:time %600 %1 minutes
         end
         
         %Bandwidth Allocation
-        gNB = bw_allocation(gNB,bw,K);
+
+        gNB = bw_allocation(gNB,bw,K,bwmode);
 
         %Calculate efficiency
         if mode == "unicast"
@@ -515,6 +516,7 @@ for t=1:time %600 %1 minutes
                     end
                 end
                 R = zeros(1,length(member_num));
+                %disp(sum(member_num))
                 for j = 1:length(member_num)
                     B = gNB(i).bw(j);
                     SINR = gNB(i).worstSINR(j);
@@ -523,12 +525,11 @@ for t=1:time %600 %1 minutes
                     end
                     R(j) = rate(10.^(SINR/10),B);
                 end
-                %R = rate(10.^(worstSINR2./10),B);
                 throughput = sum(member_num.*R);
                 if ~isempty(gNB(i).worstSINR)
                     all_throughput = all_throughput + throughput;
-                end
-            end        
+                end               
+            end    
         end
     
 end
