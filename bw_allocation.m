@@ -33,8 +33,13 @@ else
                 g(i).bw = [];
                 continue
             end
+            count = length(find(g(i).worstSINR~=inf));
             g(i).bw = zeros(1,max(g(i).group));
-            g(i).bw(1:end) = bw/max(g(i).group);
+            for j = 1:max(g(i).group)
+                if g(i).worstSINR(j)~=inf
+                    g(i).bw(j) = bw/count;
+                end
+            end
         end
     else
         error("wrong use")

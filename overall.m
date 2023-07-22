@@ -1,6 +1,7 @@
 clear all
-t = 20;
-parfor i = 1:20
+tic
+t = 30;
+parfor i = 17:20
     if i <= 4
         a1(i,:) = main('unicast',100,t,1,32,10,'fair');
         a2(i,:) = main('unicast',100,t,1,32,10,'same');
@@ -14,7 +15,8 @@ parfor i = 1:20
         a7(i-12,:) = main('GKPPD',100,t,5,32,10,'fair');
         a8(i-12,:) = main('GKPPD',100,t,5,32,10,'same');
     else
-        a9(i-16,:) = main('dynamic_k',100,t,1,32,10,'fair');
-        a10(i-16,:) = main('dynamic_k',100,t,1,32,10,'same');
+        a9(i-16,:) = main('dynamic_k',100,t,5,32,10,'fair');
+        a10(i-16,:) = main('dynamic_k',100,t,5,32,10,'same');
     end
 end
+toc
