@@ -1,6 +1,6 @@
 function report = simulation(UE_num,time,dropnum,dropout,K,mode,pptimer,handover,bwmode)
 %Scheme: Add Ping-Pong Detection on grouping
-if mode == "GRPPD" || mode == "GRPPD_uni" || mode == "GKPPD" || mode == "GKPPD_uni" || mode == "dynamic_k"
+if mode == "GRPPD" || mode == "GRPPD_uni" || mode == "GKPPD" || mode == "GKPPD_uni" || mode == "dynamic_k" || mode == "dynamic_k2"
     GRPPD = true;
 else
     GRPPD = false;
@@ -13,6 +13,9 @@ else
     else
         uni = false;
     end
+end
+if mode == "dynamic_k" || mode == "dynamic_k2"
+    K = UE_num;
 end
 
 all_throughput = 0;
@@ -109,6 +112,7 @@ clear x y
 for i = 1:7
      gNB(i)
 end
+
 for t=1:time %600 %1 minutes
     %Initial
     %disp(t)
@@ -121,9 +125,10 @@ for t=1:time %600 %1 minutes
     %Only change grouping on t%10 = 0
     if t == 1
         for i = 1:7 
-            gNB(i) = regrouping(gNB(i),K,UE,mode);
+            gNB(i) = regrouping(gNB(i),K,UE,mode,bwmode);
         end
     end
+    %error('test')
     if rem(t,10) == 0
         skip = false;
     else
@@ -210,9 +215,11 @@ for t=1:time %600 %1 minutes
     if skip == true
         continue
     end
-    
     %Update worst SINR
     for index = 1:7
+        if mode == "dynamic_k" || mode == "dynamic_k2"
+            groupnum = gNB(index).groupnum+1;
+        end
         for group_now = 1:groupnum
             ingroup = gNB(index).joinUE(find(gNB(index).group == group_now));
             worst = inf;
@@ -224,11 +231,13 @@ for t=1:time %600 %1 minutes
             gNB(index).worstSINR(group_now) = worst;
         end
     end
-
     %drop out stage
     %disp('--------dropout stage-------')
     drop_num = zeros(1,7);
     for i = 1:7
+        if mode == "dynamic_k" || mode == "dynamic_k2"
+            K = gNB(i).groupnum;
+        end
         for group_now = 1:K
             drop_out = [];
             scgroup = [];
@@ -242,9 +251,6 @@ for t=1:time %600 %1 minutes
                 UE(ingroup(j)).ppDrop = false;
             end
             mean(sinr);
-            %std(sinr);
-            
-            
             for j = 1:numel(ingroup)
                 if abs(sinr(j)-mean(sinr)) > dropout && ppDrop(j) == -1
                     drop_out(end+1) = ingroup(j); %Record UEs be dropped out
@@ -275,11 +281,13 @@ for t=1:time %600 %1 minutes
             regroup(i) = false;
         end
     end
-
     %disp('--------to SC group stage-------')
         if GRPPD == true
             if uni == false
                 for i = 1:7
+                    if mode == "dynamic_k" || mode == "dynamic_k2"
+                        K = gNB(i).groupnum;
+                    end
                     gNB(i).joinUE = [gNB(i).joinUE gNB(i).scUE];
                     scnum = numel(gNB(i).scUE);
                     gNB(i).scUE = [];
@@ -329,6 +337,9 @@ for t=1:time %600 %1 minutes
         end
 
        for index = 1:7
+            if mode == "dynamic_k" || mode == "dynamic_k2"
+                K = gNB(index).groupnum;
+            end
             if regroup(index) == false
                 if uni == false
                     for i = 1:numel(gNB(index).waitingUE)
@@ -336,7 +347,7 @@ for t=1:time %600 %1 minutes
                         sinr = [];
                         sinr(1:length(gNB(index).worstSINR)) = UE(UE_be_added).SINR;
                         diff = sinr-gNB(index).worstSINR;
-                        if length(diff) <K
+                        if length(diff)<K
                             diff(length(diff)+1:K) = -inf;
                         end
                         if mode ~= "unicast"
@@ -351,8 +362,7 @@ for t=1:time %600 %1 minutes
                             else
                                 add_group = find(diff==max(diff));
                             end                        
-                        end
-                        
+                        end                     
                         start_sc = min(find(gNB(index).group==(K+1)));%PROBLEM!!!
                         if numel(start_sc) ~= 0 && GRPPD == true                        
                             gNB(index).joinUE = [gNB(index).joinUE(1:start_sc-1) UE_be_added gNB(index).joinUE(start_sc:end)];
@@ -422,7 +432,7 @@ for t=1:time %600 %1 minutes
                     gNB(i) = add_remove(gNB(i),UE(ue),2);
                     gNB(i) = add_remove(gNB(i),UE(ue),1);
                 end
-                gNB(i) = regrouping(gNB(i),K,UE,mode);               
+                gNB(i) = regrouping(gNB(i),K,UE,mode,bwmode);               
             end
         end
         
@@ -484,7 +494,7 @@ for t=1:time %600 %1 minutes
         
         %Bandwidth Allocation
 
-        gNB = bw_allocation(gNB,bw,K,bwmode);
+        gNB = bw_allocation(gNB,bw,bwmode);
 
         %Calculate efficiency
         if mode == "unicast"
@@ -566,6 +576,6 @@ average_throughput = 10*all_throughput/time;
 % average_efficiency
 % Regroup_count
 % change
-report = [average_throughput Regroup_count change sc_ratio];
+report = average_throughput; %Regroup_count change sc_ratio];
 %pingpongarray(1)
 average_throughput

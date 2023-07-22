@@ -1,5 +1,4 @@
-function g = regrouping(g,K,allUE,type)
-    %random give
+function g = regrouping(g,K,allUE,type,bwmode)
     %disp('-----------------REGROUPING!------------------')
     if type == "GRPPD_uni"
         type = 'GRPPD';
@@ -78,18 +77,33 @@ function g = regrouping(g,K,allUE,type)
             g.joinUE = [g.waitingUE g.joinUE];           
             l = numel(g.waitingUE);%change
             sinr_array = zeros(l,1);
-            g.waitingUE = [];             
-           
+            g.waitingUE = [];                    
             for i = 1:l
                 sinr_array(i) = allUE(g.joinUE(i)).SINR;
             end
-            %siz = size(sinr_array);
-            %if siz(1) < K
-            %   K = siz(1);
-            %end
-            K = decision_k(sinr_array);
+            K = decision_k(sinr_array);            
             idx = kmeans(sinr_array,K);
             scg(1:scnum) = K+1;
             g.group = transpose(idx);
             g.group = [g.group scg];
+            g.groupnum = K;
+        case  'dynamic_k2'
+            if size(g.waitingUE) == 0
+                return
+            end            
+            g.group = [];
+            scnum = numel(g.joinUE);
+            g.joinUE = [g.waitingUE g.joinUE];           
+            l = numel(g.waitingUE);%change
+            sinr_array = zeros(l,1);
+            g.waitingUE = [];                    
+            for i = 1:l
+                sinr_array(i) = allUE(g.joinUE(i)).SINR;
+            end
+            K = decision_k2(g,allUE,bwmode);
+            idx = kmeans(sinr_array,K);
+            scg(1:scnum) = K+1;
+            g.group = transpose(idx);
+            g.group = [g.group scg];
+            g.groupnum = K;
     end

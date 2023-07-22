@@ -4,7 +4,6 @@ function k = decision_k(array)
         return
     end
     idx = [];
-    %k = 0;
     K = length(array);
     dsum = zeros(1,K);
     for i = 1:K
@@ -20,8 +19,7 @@ function k = decision_k(array)
     %figure(1)
     %plot(1:K,dsum)
     x = dsum(1);
-    y = dsum(K);
-    
+    y = dsum(K); 
     vector1 = [K-1,y-x];
     dist2 = zeros(1,K);
     for i = 1:K

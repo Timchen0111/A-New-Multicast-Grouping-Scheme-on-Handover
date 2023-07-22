@@ -28,6 +28,9 @@ switch mode
      case 'dynamic_k'
         disp('Dynamic Kmeans')
         main = simulation(UE_num,time,dropnum,dropout,K,'dynamic_k',pptimer,handover,bwmode);
+     case 'dynamic_k2'
+        disp('Dynamic Kmeans(2)')
+        main = simulation(UE_num,time,dropnum,dropout,K,'dynamic_k2',pptimer,handover,bwmode);
      otherwise
         error( 'WRONG USE.' )
 end

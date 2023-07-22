@@ -1,4 +1,4 @@
-function g = bw_allocation(g,bw,K,mode)
+function g = bw_allocation(g,bw,mode)
 if mode == "fair"
     for i = 1:7
         group_rate = zeros(1,max(g(i).group));
@@ -21,7 +21,7 @@ if mode == "fair"
         end
         allsum = sum(bw_ratio);
         bw_allocate = (bw/allsum)*bw_ratio;
-        g(i).bw = zeros(1,K);
+        g(i).bw = zeros(1,max(g(i).group));
         for  j = 1:length(bw_allocate)
             g(i).bw(j) = bw_allocate(j);
         end
