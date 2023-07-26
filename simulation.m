@@ -22,7 +22,7 @@ all_throughput = 0;
 %pingpongarray = zeros(UE_num,1)
 
 Regroup_count = 0;
-
+ggnum = zeros(1,100);
 pingpong_time = pptimer;
 staytime = zeros(1,UE_num);
 sctime = zeros(1,UE_num);
@@ -126,6 +126,7 @@ for t=1:time %600 %1 minutes
     if t == 1
         for i = 1:7 
             gNB(i) = regrouping(gNB(i),K,UE,mode,bwmode);
+            ggnum(gNB(i).groupnum) = ggnum(gNB(i).groupnum)+1;
         end
     end
     %error('test')
@@ -432,7 +433,8 @@ for t=1:time %600 %1 minutes
                     gNB(i) = add_remove(gNB(i),UE(ue),2);
                     gNB(i) = add_remove(gNB(i),UE(ue),1);
                 end
-                gNB(i) = regrouping(gNB(i),K,UE,mode,bwmode);               
+                gNB(i) = regrouping(gNB(i),K,UE,mode,bwmode);     
+                ggnum(gNB(i).groupnum) = ggnum(gNB(i).groupnum)+1;
             end
         end
         
@@ -538,7 +540,8 @@ for t=1:time %600 %1 minutes
                 throughput = sum(member_num.*R);
                 if ~isempty(gNB(i).worstSINR)
                     all_throughput = all_throughput + throughput;
-                end               
+                end  
+                
             end    
         end
     
@@ -578,4 +581,6 @@ average_throughput = 10*all_throughput/time;
 % change
 report = average_throughput; %Regroup_count change sc_ratio];
 %pingpongarray(1)
-average_throughput
+%figure(3)
+%ggnum
+%bar(ggnum)

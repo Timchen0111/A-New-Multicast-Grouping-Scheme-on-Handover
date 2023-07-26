@@ -4,6 +4,7 @@ sinr_array = zeros(1,length(g.joinUE));
 for i = 1:length(g.joinUE)
     sinr_array(i) = UE(g.joinUE(i)).SINR;
 end
+sinr_array = log2(1+10.^(sinr_array./10));
 for k = 1:length(g.joinUE)
     g.waitingUE = [];
     idx = kmeans(sinr_array',k);

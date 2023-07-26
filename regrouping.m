@@ -33,6 +33,7 @@ function g = regrouping(g,K,allUE,type,bwmode)
             for i = 1: size(g.joinUE)
                 sinr_array(i) = allUE(g.joinUE(i)).SINR;
             end
+            sinr_array = log2(1+10.^(sinr_array./10));
             idx = kmeans(transpose(sinr_array),K);
             g.group = transpose(idx);
             
@@ -64,6 +65,7 @@ function g = regrouping(g,K,allUE,type,bwmode)
             if siz(1) < K
                 K = siz(1);
             end
+            sinr_array = log2(1+10.^(sinr_array./10));
             idx = kmeans(sinr_array,K);
             scg(1:scnum) = K+1;
             g.group = transpose(idx);
@@ -79,8 +81,9 @@ function g = regrouping(g,K,allUE,type,bwmode)
             sinr_array = zeros(l,1);
             g.waitingUE = [];                    
             for i = 1:l
-                sinr_array(i) = allUE(g.joinUE(i)).SINR;
+                sinr_array(i) = allUE(g.joinUE(i)).SINR;                
             end
+            sinr_array = log2(1+10.^(sinr_array./10));
             K = decision_k(sinr_array);            
             idx = kmeans(sinr_array,K);
             scg(1:scnum) = K+1;
@@ -100,6 +103,7 @@ function g = regrouping(g,K,allUE,type,bwmode)
             for i = 1:l
                 sinr_array(i) = allUE(g.joinUE(i)).SINR;
             end
+            sinr_array = log2(1+10.^(sinr_array./10));
             K = decision_k2(g,allUE,bwmode);
             idx = kmeans(sinr_array,K);
             scg(1:scnum) = K+1;
