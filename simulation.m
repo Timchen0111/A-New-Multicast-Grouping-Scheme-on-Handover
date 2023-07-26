@@ -1,4 +1,4 @@
-function report = simulation(UE_num,time,dropnum,dropout,K,mode,pptimer,handover,bwmode)
+function report = simulation(UE_num,time,dropnum,dropout,K,mode,pptimer,handover,bwmode,fixed)
 %Scheme: Add Ping-Pong Detection on grouping
 if mode == "GRPPD" || mode == "GRPPD_uni" || mode == "GKPPD" || mode == "GKPPD_uni" || mode == "dynamic_k" || mode == "dynamic_k2"
     GRPPD = true;
@@ -17,12 +17,11 @@ end
 if mode == "dynamic_k" || mode == "dynamic_k2"
     K = UE_num;
 end
-
 all_throughput = 0;
 %pingpongarray = zeros(UE_num,1)
 
 Regroup_count = 0;
-ggnum = zeros(1,100);
+%ggnum = zeros(1,100);
 pingpong_time = pptimer;
 staytime = zeros(1,UE_num);
 sctime = zeros(1,UE_num);
@@ -31,6 +30,7 @@ fail = zeros(1,UE_num);
 stay_sinr = 0;
 sc_sinr = 0;
 tic; %Fix grouping.
+
 UE.num = 0;
 UE.pos = [0,0];
 UE.now_gNB = 0;
@@ -68,7 +68,7 @@ gNB = set_gNB(gNB,UE_num,K);
 bw = 1e8;
 noise = -174+10*log10(bw); %db
 
-for i=1:UE_num
+for i=1:(UE_num+fixed)
     X = [inf,inf];
     while boundary(X(1),X(2)) == false
         X = 1000*rand(2,1)-500;
@@ -79,11 +79,9 @@ for i=1:UE_num
     UE(i).now_gNB = now_(1);
     UE(i).SINR = now_(2);
     UE(i).change_admission = false;
-
     UE(i).pptimer = -1;
     UE(i).ppsave = [];
     UE(i).state = 0;
-    %UE(i).ppDrop = false;
     gNB(UE(i).now_gNB) = add_remove(gNB(UE(i).now_gNB),UE(i),1);
 end
 
@@ -99,12 +97,22 @@ for i=1:UE_num
     x(i) = pos(1);
     y(i) = pos(2);
 end
+
+if fixed ~= 0
+    for i = (UE_num+1):(UE_num+fixed)
+        pos = UE(i).pos;
+        x(i) = pos(1);
+        y(i) = pos(2);
+    end
+end
+
 for i=1:19
     x(end+1) = gNB(i).pos(1);
     y(end+1) = gNB(i).pos(2);
 end
+
 figure(1)
-c = gNB_color(UE); 
+c = gNB_color(UE);
 scatter(x,y,[],c)
 clear x y
 
@@ -112,11 +120,10 @@ clear x y
 for i = 1:7
      gNB(i)
 end
-
+for i = 1:length(UE)
+    UE(i).pos
+end
 for t=1:time %600 %1 minutes
-    %Initial
-    %disp(t)
-    %disp(UE(1).pos)
     T = 10*t;
     if rem(t,100)==0
         disp(['time:' string(T) 'ms'])
@@ -126,10 +133,9 @@ for t=1:time %600 %1 minutes
     if t == 1
         for i = 1:7 
             gNB(i) = regrouping(gNB(i),K,UE,mode,bwmode);
-            ggnum(gNB(i).groupnum) = ggnum(gNB(i).groupnum)+1;
+            %ggnum(gNB(i).groupnum) = ggnum(gNB(i).groupnum)+1;
         end
     end
-    %error('test')
     if rem(t,10) == 0
         skip = false;
     else
@@ -434,21 +440,8 @@ for t=1:time %600 %1 minutes
                     gNB(i) = add_remove(gNB(i),UE(ue),1);
                 end
                 gNB(i) = regrouping(gNB(i),K,UE,mode,bwmode);     
-                ggnum(gNB(i).groupnum) = ggnum(gNB(i).groupnum)+1;
+                %ggnum(gNB(i).groupnum) = ggnum(gNB(i).groupnum)+1;
             end
-        end
-        
-        %Checking
-        sumue = 0;
-        for i = 1:7
-            sumue = numel(gNB(i).joinUE)+sumue+numel(gNB(i).waitingUE)+numel(gNB(i).scUE);
-        end
-        if sumue ~= UE_num
-            for i = 1:7
-                gNB(i);
-            end
-            disp(t)
-            error('WRONG UE NUM')
         end
         
         if uni == true
@@ -561,7 +554,7 @@ for i = 1:7
      gNB(i)
 end
 
-for i=1:UE_num
+for i=1:(UE_num+fixed)
     pos = UE(i).pos;
     x(i) = pos(1);
     y(i) = pos(2);
@@ -570,10 +563,13 @@ for i=1:19
     x(end+1) = gNB(i).pos(1);
     y(end+1) = gNB(i).pos(2);
 end
-figure(2)
-c = gNB_color(UE); 
-scatter(x,y,[],c)
 
+figure(2)
+c = gNB_color(UE);
+scatter(x,y,[],c)
+for i = 1:length(UE)
+    UE(i).pos
+end
 %UE.SINR
 average_throughput = 10*all_throughput/time;
 % average_efficiency
