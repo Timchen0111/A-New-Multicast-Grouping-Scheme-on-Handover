@@ -120,9 +120,9 @@ clear x y
 for i = 1:7
      gNB(i)
 end
-for i = 1:length(UE)
-    UE(i).pos
-end
+% for i = 1:length(UE)
+%     UE(i).pos
+% end
 for t=1:time %600 %1 minutes
     T = 10*t;
     if rem(t,100)==0
@@ -567,9 +567,9 @@ end
 figure(2)
 c = gNB_color(UE);
 scatter(x,y,[],c)
-for i = 1:length(UE)
-    UE(i).pos
-end
+% for i = 1:length(UE)
+%     UE(i).pos
+% end
 %UE.SINR
 average_throughput = 10*all_throughput/time;
 % average_efficiency
