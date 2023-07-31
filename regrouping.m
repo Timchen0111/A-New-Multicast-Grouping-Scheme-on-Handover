@@ -84,7 +84,7 @@ function g = regrouping(g,K,allUE,type,bwmode)
                 sinr_array(i) = allUE(g.joinUE(i)).SINR;                
             end
             sinr_array = log2(1+10.^(sinr_array./10));
-            K = decision_k(sinr_array);            
+            K = decision_k(sinr_array)
             idx = kmeans(sinr_array,K);
             scg(1:scnum) = K+1;
             g.group = transpose(idx);
