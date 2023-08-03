@@ -10,6 +10,9 @@ switch mode
      case 'kmeans'
         disp('K-means');
         main = simulation(UE_num,time,dropnum,dropout,K,'kmeans',pptimer,handover,bwmode,fixed);
+     case 'not_reg'
+        disp('K-means,HO, not regrouping');
+        main = simulation(UE_num,time,dropnum,dropout,K,'not_reg',pptimer,handover,bwmode,fixed);
      case 'random'
         disp('Grouping randomly');
         main = simulation(UE_num,time,dropnum,dropout,K,'random',pptimer,handover,bwmode,fixed);

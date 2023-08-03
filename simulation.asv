@@ -584,7 +584,7 @@ scatter(x,y,[],c)
 %UE.SINR
 average_throughput = 10*all_throughput/time;
 % average_efficiency
-disp(Regroup_count)
+Regroup_count
 % change
 report = average_throughput; %Regroup_count change sc_ratio];
 %pingpongarray(1)
