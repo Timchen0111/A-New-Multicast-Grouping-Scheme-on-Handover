@@ -151,7 +151,7 @@ for t=1:time %600 %1 minutes
     else
         skip = true;
     end
-
+    
     %Moving stage 
     %disp('--------move stage-------')
     for i=1:UE_num
@@ -164,6 +164,7 @@ for t=1:time %600 %1 minutes
             v = UE(i).velocity;
             UE(i).velocity = velocity(UE(i).pos,v);
         end
+        
         
         %check nowgNB
         %-------------------ADDING PINGPONG(3/23)---------------------
@@ -213,25 +214,25 @@ for t=1:time %600 %1 minutes
                     UE(i).pptimer = 0;
                 end
             end
-
-        %Change nowgNB
-        if UE(i).change_admission == true
-            UE(i).state = 0;
-            change = change+1;
-            UE(i).now_gNB = now;
-            UE(i).SINR = Now(2);
-            gNB(old) = add_remove(gNB(old),UE(i),2);
-            if numel(find(gNB(old).waitingUE == i))>0
-                rem_waiting = find(gNB(old).waitingUE == i);
-                gNB(old).waitingUE(rem_waiting) = []; 
+            %Change nowgNB
+            if UE(i).change_admission == true
+                UE(i).state = 0;
+                change = change+1;
+                UE(i).now_gNB = now;
+                UE(i).SINR = Now(2);
+                gNB(old) = add_remove(gNB(old),UE(i),2);
+                if numel(find(gNB(old).waitingUE == i))>0
+                    rem_waiting = find(gNB(old).waitingUE == i);
+                    gNB(old).waitingUE(rem_waiting) = []; 
+                end
+                gNB(UE(i).now_gNB) = add_remove(gNB(UE(i).now_gNB),UE(i),1);
             end
-            gNB(UE(i).now_gNB) = add_remove(gNB(UE(i).now_gNB),UE(i),1);
-        end       
     end
-
-    if skip == true
-        continue
-    end
+    
+    % if skip == true
+    %     continue
+    % end
+    
     %Update worst SINR
     for index = 1:7
         if mode == "dynamic_k" || mode == "dynamic_k2"
@@ -252,6 +253,9 @@ for t=1:time %600 %1 minutes
     %disp('--------dropout stage-------')
     drop_num = zeros(1,7);
     for i = 1:7
+        if skip == true
+            continue
+        end
         if mode == "dynamic_k" || mode == "dynamic_k2"
             K = gNB(i).groupnum;
         end
@@ -278,6 +282,7 @@ for t=1:time %600 %1 minutes
             end           
             for k = 1:numel(drop_out)                
                 index = drop_out(k);
+                %disp(index)
                 gNB(UE(index).now_gNB) = add_remove(gNB(UE(index).now_gNB),UE(index),2);
                 gNB(UE(index).now_gNB) = add_remove(gNB(UE(index).now_gNB),UE(index),1);
                 drop_num(i) = drop_num(i)+1;
@@ -322,7 +327,6 @@ for t=1:time %600 %1 minutes
                     else
                         sc = [];
                     end
-
                     gNB(i).group = [gNB(i).group sc];     %problem
                     sc = [];
                     gNB(i).groupnum = gNB(i).groupnum+scnum;
@@ -432,7 +436,7 @@ for t=1:time %600 %1 minutes
                 gNB(i).group = 1:length(gNB(i).joinUE);
             end
         end
-        if skipr == false
+        if skipr == false && skip == false
             %disp('-----------Regrouping Stage----------')        
             for i = 1:7
                 if regroup(i) == true
@@ -582,7 +586,7 @@ scatter(x,y,[],c)
 %     UE(i).pos
 % end
 %UE.SINR
-average_throughput = 10*all_throughput/time;
+average_throughput = all_throughput/time;
 % average_efficiency
 disp(Regroup_count)
 % change
