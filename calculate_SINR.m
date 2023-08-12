@@ -16,11 +16,7 @@ fad_ = sigma.*fad;
 for i=1:19
     result = pathloss(35,1.5,5,distance(i),fc); %Unit:db
     fad = fad_(i);
-    pl(i) = fad-result; %pathloss, unit:db
-    %disp('---------------')
-    %disp(fad)
-    
-    %clear fad;
+    pl(i) = 19+fad-result; %signal, unit:db
 end
 interference = 0;
 for i=1:19
