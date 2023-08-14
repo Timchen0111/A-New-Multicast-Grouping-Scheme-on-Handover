@@ -16,7 +16,7 @@ fad_ = sigma.*fad;
 for i=1:19
     result = pathloss(35,1.5,5,distance(i),fc); %Unit:db
     fad = fad_(i);
-    pl(i) = 19+fad-result; %signal, unit:db
+    pl(i) = 11+19+fad-result; %signal, unit:db %11:Antenna gain 19:Tx power
 end
 interference = 0;
 for i=1:19
