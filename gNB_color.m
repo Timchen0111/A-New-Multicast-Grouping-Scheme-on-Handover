@@ -1,6 +1,9 @@
 function c = gNB_color(UE)
     c=[length(UE),0,0];
+    
     for i=1:length(UE)
+        c(i,:) = [0 0 1];
+        continue
         switch UE(i).now_gNB
             case(1)
                 c(i,:) = [1 0 0]; %red
