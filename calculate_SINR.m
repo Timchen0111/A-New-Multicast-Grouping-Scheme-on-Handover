@@ -1,5 +1,4 @@
-function sinr = calculate_SINR(UE,tgNB_num,gNB,noise) 
-%UE:UE(struct),tgNB_num:num of tgNB(int),gNB:all of tgNB(array of struct gNB)
+function sinr = calculate_SINR(UE,tgNB_num,gNB,noise,fad_map) 
 
 tgNB = gNB(tgNB_num);
 fc = 3;%frequency
@@ -12,7 +11,12 @@ end
 fad = randn(1, 19);
 sigma = 4;
 fad_ = sigma.*fad;
-
+type = "correlated";
+if type == "correlated"
+    for i = 1:19
+        fad_ = 1+fad_map();
+    end
+end
 for i=1:19
     result = pathloss(35,1.5,5,distance(i),fc); %Unit:db
     fad = fad_(i);
