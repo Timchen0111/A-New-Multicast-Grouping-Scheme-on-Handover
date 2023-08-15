@@ -1,6 +1,6 @@
 clear all
 tic
-t = 30;
+t = 3;
 parfor i = 17:20
     if i <= 4
         a1(i,:) = main('unicast',100,t,1,32,10,'fair');
