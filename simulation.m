@@ -26,6 +26,7 @@ if mode == "dynamic_k" || mode == "dynamic_k2"
     K = UE_num;
 end
 
+fad_map = shadow_fading(4,1800);
 all_throughput = 0;
 %pingpongarray = zeros(UE_num,1)
 
@@ -50,8 +51,6 @@ UE.pptimer = 0;
 UE.ppsave = [];
 UE.ppDrop = false;
 UE.state = 0;
-
-
 
 gNB.num = 0;
 gNB.pos = [inf,inf];
@@ -85,7 +84,7 @@ for i=1:(UE_num+fixed)
     end
     UE(i).num = i;
     UE(i).pos = X;%generate random initial position of UEs
-    now_ = now_gNB(UE(i),gNB,noise,handover);
+    now_ = now_gNB(UE(i),gNB,noise,handover,fad_map);
     UE(i).now_gNB = now_(1);
     UE(i).SINR = now_(2);
     UE(i).change_admission = false;
@@ -99,6 +98,8 @@ end
 for i=1:UE_num
     UE(i).velocity = velocity(UE(i).pos);
 end
+
+%fading map
 
 change = 0;
 
@@ -143,7 +144,6 @@ for t=1:time %600 %1 minutes
     if t == 1
         for i = 1:7 
             gNB(i) = regrouping(gNB(i),K,UE,mode,bwmode);
-            %ggnum(gNB(i).groupnum) = ggnum(gNB(i).groupnum)+1;
         end
     end
     if rem(t,10) == 0
@@ -171,7 +171,7 @@ for t=1:time %600 %1 minutes
         %disp(UE(i).pptimer)
         %The algorithm there is based on "Reducing Ping-Pong Handover Effects In Intra EUTRA Networks".
         old = UE(i).now_gNB;
-        Now = now_gNB(UE(i),gNB,noise,handover);
+        Now = now_gNB(UE(i),gNB,noise,handover,fad_map);
         now = Now(1);
         UE(i).SINR = Now(3);
 
@@ -582,13 +582,11 @@ end
 figure(2)
 c = gNB_color(UE);
 scatter(x,y,[],c)
-% for i = 1:length(UE)
-%     UE(i).pos
-% end
+
 %UE.SINR
 average_throughput = all_throughput/time;
 % average_efficiency
-disp(Regroup_count)
+%disp(Regroup_count)
 % change
 report = average_throughput; %Regroup_count change sc_ratio];
 %pingpongarray(1)
