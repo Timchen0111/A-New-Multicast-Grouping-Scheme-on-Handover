@@ -26,7 +26,7 @@ if mode == "dynamic_k" || mode == "dynamic_k2"
     K = UE_num;
 end
 
-fad_map = shadow_fading(4,1800);
+fad_map = shadow_fading(0,4,900);
 all_throughput = 0;
 %pingpongarray = zeros(UE_num,1)
 
@@ -134,11 +134,13 @@ end
 % for i = 1:length(UE)
 %     UE(i).pos
 % end
-for t=1:time %600 %1 minutes
+for t=1:time %600 %1 minutes Unit:100ms
     T = 10*t;
-    if rem(t,100)==0
-        disp(['time:' string(T) 'ms'])
-    end
+    fad_map = shadow_fading(fad_map,4,900);
+    disp(t)
+    % if rem(t,100)==0
+    %     disp(['time:' string(T) 'ms'])
+    % end
     %disp(['time:' string(T) 'ms'])
     %Only change grouping on t%10 = 0
     if t == 1

@@ -11,21 +11,21 @@ end
 % sigma = 4;
 % %fad_ = sigma.*fad;
 
-itemx = floor(UE.pos(1)+900);
-itemy = floor(900-UE.pos(2));
+itemx = floor((UE.pos(1)+900)/2);
+itemy = floor((900-UE.pos(2))/2);
 if itemx < 1
     itemx = 1;
 elseif itemy < 1
     itemy = 1;
-elseif itemx > 1800
-    itemx = 1800;
-elseif itemy > 1800
-    itemy = 1800;
+elseif itemx > 900
+    itemx = 900;
+elseif itemy > 900
+    itemy = 900;
 end
 
 %disp(fad_map(itemx,itemy));
 for i = 1:19
-    fad_(i) = fad_map(itemx,itemy);
+    fad_(i) = fad_map(i,itemx,itemy);
 end
 
 for i=1:19

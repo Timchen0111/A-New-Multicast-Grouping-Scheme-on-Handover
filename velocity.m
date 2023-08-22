@@ -6,7 +6,7 @@ function v = velocity(pos,vv)
     count = 1;
     
     while set == false
-        v(1) = (1/12)*cos(angle); %1/120
+        v(1) = (1/12)*cos(angle); %1/120 3km/hr = 3000m/hr = 10/12m/s = 1/12 m/(0.1s)
         v(2) = (1/12)*sin(angle);
         set = boundary(x+v(1),y+v(2));
         count = count+1;
