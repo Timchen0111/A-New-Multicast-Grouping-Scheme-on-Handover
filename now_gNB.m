@@ -1,5 +1,5 @@
 %Where are you now?
-function now = now_gNB(UE,gNB,noise,handover,fad_map)
+function now = now_gNB(UE,gNB,noise,handover)
 
 max_sinr = -inf;
 old_sinr = -inf;
@@ -14,7 +14,7 @@ else
 end
 %sinr = SINR(UE,tgNB_num,gNB,noise) 
 for i=1:7
-    sinr = calculate_SINR(UE,i,gNB,noise,fad_map);
+    sinr = calculate_SINR(UE,i,gNB,noise);
     if i == old
         old_sinr = sinr;
     end

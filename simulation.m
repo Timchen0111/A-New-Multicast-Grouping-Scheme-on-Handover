@@ -1,6 +1,6 @@
 function report = simulation(UE_num,time,dropnum,dropout,K,mode,pptimer,handover,bwmode,fixed)
 %Scheme: Add Ping-Pong Detection on grouping
-if mode == "GRPPD" || mode == "GRPPD_uni" || mode == "GKPPD" || mode == "GKPPD_uni" || mode == "dynamic_k" || mode == "dynamic_k2"
+if mode == "GRPPD" || mode == "GRPPD_uni" || mode == "GKPPD" || mode == "GKPPD_uni" || mode == "dynamic_k2" || mode == "dynamic_k"
     GRPPD = true;
 else
     GRPPD = false;
@@ -15,18 +15,21 @@ else
     end
 end
 
-if mode == "not_reg"
-    skipr = true;
-    GRPPD = true;
-else
-    skipr = false;
-end
+skipr = false;
 
-if mode == "dynamic_k" || mode == "dynamic_k2"
+
+if mode == "dynamic_k2"
     K = UE_num;
 end
 
-fad_map = shadow_fading(0,4,900);
+%fads = load('C:\fad2\t1.mat');
+%fad = fads.fad;
+%fsize = size(fad,1);
+
+%fad_map = fad(1,:,:);
+%fad_map = reshape(fad_map,19,900,[]);
+%disp(size(fad_map))
+
 all_throughput = 0;
 %pingpongarray = zeros(UE_num,1)
 
@@ -59,6 +62,7 @@ gNB.waitingUE = [];
 gNB.scUE = [];
 gNB.group = []; 
 gNB.worstSINR = zeros(K);
+gNB.std = 0;
 if GRPPD ==false
     groupnum = K;
 else
@@ -84,7 +88,7 @@ for i=1:(UE_num+fixed)
     end
     UE(i).num = i;
     UE(i).pos = X;%generate random initial position of UEs
-    now_ = now_gNB(UE(i),gNB,noise,handover,fad_map);
+    now_ = now_gNB(UE(i),gNB,noise,handover);
     UE(i).now_gNB = now_(1);
     UE(i).SINR = now_(2);
     UE(i).change_admission = false;
@@ -129,18 +133,20 @@ clear x y
 
 %Loop
 for i = 1:7
-     gNB(i)
+     gNB(i);
+     
 end
 % for i = 1:length(UE)
 %     UE(i).pos
 % end
+item = 0;
+faditem = 1;
 for t=1:time %600 %1 minutes Unit:100ms
     T = 10*t;
-    fad_map = shadow_fading(fad_map,4,900);
-    disp(t)
-    % if rem(t,100)==0
-    %     disp(['time:' string(T) 'ms'])
-    % end
+    item = item+1;
+    if rem(t,100)==0
+         disp(['time:' string(T) 'ms'])
+    end
     %disp(['time:' string(T) 'ms'])
     %Only change grouping on t%10 = 0
     if t == 1
@@ -173,7 +179,7 @@ for t=1:time %600 %1 minutes Unit:100ms
         %disp(UE(i).pptimer)
         %The algorithm there is based on "Reducing Ping-Pong Handover Effects In Intra EUTRA Networks".
         old = UE(i).now_gNB;
-        Now = now_gNB(UE(i),gNB,noise,handover,fad_map);
+        Now = now_gNB(UE(i),gNB,noise,handover);
         now = Now(1);
         UE(i).SINR = Now(3);
 
@@ -258,7 +264,7 @@ for t=1:time %600 %1 minutes Unit:100ms
         if skip == true
             continue
         end
-        if mode == "dynamic_k" || mode == "dynamic_k2"
+        if mode == "dynamic_k2"
             K = gNB(i).groupnum;
         end
         for group_now = 1:K
@@ -309,7 +315,7 @@ for t=1:time %600 %1 minutes Unit:100ms
         if GRPPD == true
             if uni == false
                 for i = 1:7
-                    if mode == "dynamic_k" || mode == "dynamic_k2"
+                    if mode == "dynamic_k2"
                         K = gNB(i).groupnum;
                     end
                     gNB(i).joinUE = [gNB(i).joinUE gNB(i).scUE];
@@ -360,7 +366,7 @@ for t=1:time %600 %1 minutes Unit:100ms
         end
 
        for index = 1:7
-            if mode == "dynamic_k" || mode == "dynamic_k2"
+            if mode == "dynamic_k2"
                 K = gNB(index).groupnum;
             end
             if regroup(index) == false
@@ -502,6 +508,9 @@ for t=1:time %600 %1 minutes Unit:100ms
                 gNB(index).worstSINR(group_now) = worst;
             end
             gNB(index).worstSINR(groupnum+1:end) = [];
+            gs = gNB(index).worstSINR;
+            gs(gs==inf)=[];
+            gNB(index).groupnum = length(gs);
         end
         
         %Bandwidth Allocation
@@ -567,7 +576,28 @@ sc_ratio = sc_rate(1);
 % disp(stay_sinr)
 % disp('sc_sinr')
 % disp(sc_sinr)
+%std_ = [0 0 0 0 0 0 0];
 for i = 1:7
+    % The following code is for a new method%
+     a = gNB(i).worstSINR;
+     a(a==inf) = [];
+     a = log2(1+10.^(a./10));
+     a = sort(a);
+     member_num = zeros(1,max(gNB(i).group));
+     for j = 1:max(gNB(i).group)
+         member_num(j) = nnz(gNB(i).group==j);
+     end
+     member_num(member_num==0) = [];
+     check = zeros(1,length(a)-1);
+     if length(a) >= 1
+         for k = 1:length(a)-1
+             check(k) = (a(k+1)/a(k))/(2+member_num(k)/member_num(k+1));
+         end
+         gNB(i).std = check;
+     else
+         gNB(i).std = [];
+     end
+    % The following code is for a new method%
      gNB(i)
 end
 
@@ -587,11 +617,5 @@ scatter(x,y,[],c)
 
 %UE.SINR
 average_throughput = all_throughput/time;
-% average_efficiency
-%disp(Regroup_count)
-% change
-report = average_throughput; %Regroup_count change sc_ratio];
-%pingpongarray(1)
-%figure(3)
-%ggnum
-%bar(ggnum)
+report = average_throughput;
+%report = mean(std_); %Regroup_count change sc_ratio];

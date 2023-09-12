@@ -70,7 +70,7 @@ function g = regrouping(g,K,allUE,type,bwmode)
             scg(1:scnum) = K+1;
             g.group = transpose(idx);
             g.group = [g.group scg];
-        case  'dynamic_k'
+        case  'dynamic_k'            
             if size(g.waitingUE) == 0
                 return
             end            
@@ -79,17 +79,70 @@ function g = regrouping(g,K,allUE,type,bwmode)
             g.joinUE = [g.waitingUE g.joinUE];           
             l = numel(g.waitingUE);%change
             sinr_array = zeros(l,1);
-            g.waitingUE = [];                    
+            g.waitingUE = [];             
+           
             for i = 1:l
-                sinr_array(i) = allUE(g.joinUE(i)).SINR;                
+                sinr_array(i) = allUE(g.joinUE(i)).SINR;
+            end
+            siz = size(sinr_array);
+            if siz(1) < K
+                K = siz(1);
             end
             sinr_array = log2(1+10.^(sinr_array./10));
-            K = decision_k(sinr_array);
             idx = kmeans(sinr_array,K);
             scg(1:scnum) = K+1;
             g.group = transpose(idx);
+            
+            groupnum = max(g.group);
+            g.worstSINR = zeros(1,groupnum);
+            for group_now = 1:groupnum
+                ingroup = g.joinUE(find(g.group == group_now));
+                worst = inf;
+                for i = 1:numel(ingroup)
+                    if allUE(ingroup(i)).SINR<worst
+                        worst = allUE(ingroup(i)).SINR;
+                    end
+                end
+                g.worstSINR(group_now) = worst;
+            end
+
+            a = g.worstSINR;
+            a(a==inf) = [];
+            a = log2(1+10.^(a./10));         
+            member_num = zeros(1,max(g.group));
+            for j = 1:length(a)
+                 member_num(j) = nnz(g.group==j);
+            end
+            member_num(member_num==0) = [];
+            check = zeros(1,length(a)-1);
+            a_s = sort(a);
+            Sort = zeros(1,length(a));
+            scount = 1;
+            for i = 1:length(a)
+                f = find(a==a_s(i));
+                Sort(i) = f(scount);
+                if scount<length(f)
+                    scount = scount+1;
+                else
+                    scount = 1;
+                end 
+            end
+
+            grnow = Sort(1);
+            for i = 1:length(check)
+                if check(i) < 1
+                    check(i) = (a(Sort(i+1))/a(grnow))/(2+member_num(grnow)/member_num(Sort(i+1)));
+                    disp('--------------------MERGING---------------------')
+                    disp(i)
+                    g.group(g.group==Sort(i+1)) = grnow;
+                    member_num(Sort(grnow)) = member_num(Sort(i+1)) + member_num(Sort(grnow));
+                    member_num(Sort(i+1)) = 0;
+                else
+                    grnow = Sort(i+1);
+                end
+            end
             g.group = [g.group scg];
-            g.groupnum = K;
+
         case  'dynamic_k2'
             if size(g.waitingUE) == 0
                 return

@@ -1,10 +1,9 @@
 function sf_all = shadow_fading(sf_old,sigma,num)
 %num
-tic
+
 md = 2; %最小單位: 2meter(from correlation distance)
 sf_all = zeros(19,num,num);
 for index = 1:19
-    index
     if sf_old == 0   
         sf = zeros(num);
         %generate random fading(normal RV)
@@ -166,4 +165,3 @@ for index = 1:19
     end   
     sf_all(index,:,:) = sf;
 end
-toc
