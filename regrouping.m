@@ -127,16 +127,25 @@ function g = regrouping(g,K,allUE,type,bwmode)
                     scount = 1;
                 end 
             end
-
+            mergecount = length(check)+1;
             grnow = Sort(1);
             for i = 1:length(check)
-                if check(i) < 1
-                    check(i) = (a(Sort(i+1))/a(grnow))/(2+member_num(grnow)/member_num(Sort(i+1)));
+                %check(i) = (a(Sort(i+1))/a(grnow))/((mergecount/(mergecount-1))+member_num(grnow)/member_num(Sort(i+1)));
+                left = a(Sort(i+1))/a(grnow);
+                a2 = a;
+                a(grnow) = inf;
+                a(Sort(i+1)) = inf;
+                a_other = min(a);
+                a = a2;
+                m_other = sum(member_num)-member_num(grnow)-member_num(Sort(i+1));
+                right = 1+(1/mergecount)*(1+member_num(grnow)/member_num(Sort(i+1))+a_other*m_other/(a(grnow)*member_num(Sort(i+1))));
+                if left<right
                     disp('--------------------MERGING---------------------')
                     disp(i)
                     g.group(g.group==Sort(i+1)) = grnow;
                     member_num(Sort(grnow)) = member_num(Sort(i+1)) + member_num(Sort(grnow));
                     member_num(Sort(i+1)) = 0;
+                    mergecount = mergecount-1;
                 else
                     grnow = Sort(i+1);
                 end
