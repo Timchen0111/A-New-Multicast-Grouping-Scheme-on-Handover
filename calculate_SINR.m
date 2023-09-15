@@ -7,9 +7,9 @@ for i=1:19
     pl(i) = 0;
 end
 
-fad = randn(1, 19);
-sigma = 4;
-fad_ = sigma.*fad;
+fad_ = randn(1, 19);
+%sigma = 4;
+%fad_ = sigma.*fad;
 
 % itemx = floor((UE.pos(1)+900)/2);
 % itemy = floor((900-UE.pos(2))/2);
@@ -30,8 +30,12 @@ fad_ = sigma.*fad;
 
 for i=1:19
     result = pathloss(35,1.5,5,distance(i),fc); %Unit:db
-    fad = fad_(i);
-    pl(i) = 14+19+fad-result; %signal, unit:db %11:Antenna gain 19:Tx power
+    if result(2) == true
+        fad = fad_(i)*4;
+    else 
+        fad = fad_(i)*6;
+    end
+    pl(i) = 14+19+fad-result(1); %signal, unit:db %11:Antenna gain 19:Tx power
 end
 interference = 0;
 for i=1:19

@@ -1,4 +1,4 @@
-function PL = pathloss(Hbs,Hut,h,d2d,fc)
+function r = pathloss(Hbs,Hut,h,d2d,fc)
 %calculate pathloss. Output is [pathloss,type(PL1 or PL2)]
 d3d = sqrt((Hbs-Hut)^2+d2d^2);
 c = 3e8;
@@ -41,3 +41,4 @@ else
     PL_nlos = 13.54+39.08*log10(d3d)+20*log10(fc)-0.6*(Hut-1.5);
     PL = max(PL_los,PL_nlos);
 end
+r = [PL LOS];
