@@ -35,7 +35,7 @@ for i=1:19
     else 
         fad = fad_(i)*6;
     end
-    pl(i) = 14+19+fad-result(1); %signal, unit:db %11:Antenna gain 19:Tx power
+    pl(i) = 14+49+fad-result(1); %signal, unit:db %11:Antenna gain 19:Tx power
 end
 interference = 0;
 for i=1:19

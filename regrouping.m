@@ -1,4 +1,4 @@
-function g = regrouping(g,K,allUE,type,bwmode)
+function g = regrouping(g,K,allUE,type,bwmode,maxk)
     %disp('-----------------REGROUPING!------------------')
     if type == "GRPPD_uni"
         type = 'GRPPD';
@@ -6,6 +6,8 @@ function g = regrouping(g,K,allUE,type,bwmode)
     if type == "GKPPD_uni"
         type = 'GKPPD';
     end
+    %disp('-----------------')
+    %disp(maxk)
     switch type
         case 'unicast'
             g.joinUE = g.waitingUE;
@@ -67,7 +69,7 @@ function g = regrouping(g,K,allUE,type,bwmode)
             end
             sinr_array = log2(1+10.^(sinr_array./10));
             idx = kmeans(sinr_array,K);
-            scg(1:scnum) = K+1;
+            scg(1:scnum) = maxk+1;
             g.group = transpose(idx);
             g.group = [g.group scg];
         case  'dynamic_k'            
@@ -152,7 +154,7 @@ function g = regrouping(g,K,allUE,type,bwmode)
             end
             g.group = [g.group scg];
 
-        case  'dynamic_k2'
+        case  'dynamic_k2' %Upper bound
             if size(g.waitingUE) == 0
                 return
             end            

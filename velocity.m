@@ -1,4 +1,4 @@
-function v = velocity(pos,vv)
+function v = velocity(pos,vv,gNB)
     x = pos(1);
     y = pos(2);
     angle = rand*2*pi;
@@ -8,7 +8,7 @@ function v = velocity(pos,vv)
     while set == false
         v(1) = (1/12)*cos(angle); %1/120 3km/hr = 3000m/hr = 10/12m/s = 1/12 m/(0.1s)
         v(2) = (1/12)*sin(angle);
-        set = boundary(x+v(1),y+v(2));
+        set = boundary(x+v(1),y+v(2),gNB);
         count = count+1;
         if count >1000
             disp('overflow!')
