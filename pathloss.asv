@@ -21,7 +21,6 @@ if LOS_test<pr_los
 else
     LOS = false;
 end
-%LOS = true; %LOS
 
 dbp = 2*pi*Hbs*Hut*fc*(1e9)/c;
 PL1 = 28+22*log10(d3d)+20*log10(fc);

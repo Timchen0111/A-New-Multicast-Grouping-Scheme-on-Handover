@@ -1,0 +1,21 @@
+clear all
+tic
+t = 3;
+ttt = 1.28;
+HO = 9;
+a1 = zeros(1,5);
+a2 = zeros(1,5);
+a3 = zeros(1,5);
+a4 = zeros(1,5);
+parfor i = 1:20
+    if i <= 5
+        a1(1,i) = main('unicast',100,t,100,ttt,HO,3);
+    elseif i <= 10
+        a2(1,i-5) = main('GKPPD',100,t,100,ttt,HO,3);
+    elseif i <= 15
+        a3(1,i-10) = main('GKPPD',100,t,100,ttt,HO,2);
+    else
+        a4(i-15) = main('GKPPD',100,t,100,ttt,HO,2);
+    end
+end
+toc

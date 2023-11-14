@@ -142,7 +142,7 @@ for t=1:time %600 %1 minutes Unit:100ms
     
     if t == 1
         for i = 1:7 
-            if groupnum > 0
+            if groupsize > 0
                 KK = max(1,floor(numel(gNB(i).waitingUE)/groupsize));
             else 
                 KK = K;
@@ -166,10 +166,9 @@ for t=1:time %600 %1 minutes Unit:100ms
         %check boundary
         if boundary(UE(i).pos(1),UE(i).pos(2),gNB) == false
             v = UE(i).velocity;
-            UE(i).velocity = velocity(UE(i).pos,v);
+            UE(i).velocity = velocity(UE(i).pos,v,gNB);
         end
-        
-        
+             
         %check nowgNB
         %-------------------ADDING PINGPONG(3/23)---------------------
         %disp(UE(i).pptimer)
@@ -288,19 +287,15 @@ for t=1:time %600 %1 minutes Unit:100ms
             end           
             for k = 1:numel(drop_out)                
                 index = drop_out(k);
-                %disp(index)
                 gNB(UE(index).now_gNB) = add_remove(gNB(UE(index).now_gNB),UE(index),2);
                 gNB(UE(index).now_gNB) = add_remove(gNB(UE(index).now_gNB),UE(index),1);
                 drop_num(i) = drop_num(i)+1;
             end
             for k = 1:numel(scgroup)
-                %disp(scgroup)
-                %error('jijwofj!!!')
                 index = scgroup(k);
                 gNB(UE(index).now_gNB) = add_remove(gNB(UE(index).now_gNB),UE(index),2);
                 gNB(UE(index).now_gNB) = add_remove(gNB(UE(index).now_gNB),UE(index),3);
             end
-            clear sinr drop_out ppDrop
         end
     end
 
@@ -461,7 +456,7 @@ for t=1:time %600 %1 minutes Unit:100ms
                         gNB(i) = add_remove(gNB(i),UE(ue),2);
                         gNB(i) = add_remove(gNB(i),UE(ue),1);
                     end
-                    if groupnum > 0
+                    if groupsize > 0
                         KK = max(1,floor(numel(gNB(i).waitingUE)/groupsize));
                     else 
                         KK = K;
