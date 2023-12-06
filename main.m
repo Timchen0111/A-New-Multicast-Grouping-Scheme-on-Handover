@@ -36,6 +36,9 @@ switch mode
      case 'dynamic_k2'
         disp('Dynamic Kmeans(2)')
         main = simulation(UE_num,time,dropnum,dropout,K,'dynamic_k2',pptimer,handover,bwmode,groupnum);
+     case 'CQI'
+        disp('CQI grouping');
+        main = simulation(UE_num,time,dropnum,dropout,K,'CQI',pptimer,handover,bwmode,groupnum);
      otherwise
         error( 'WRONG USE.' )
 end

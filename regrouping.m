@@ -174,4 +174,12 @@ function g = regrouping(g,K,allUE,type,bwmode,maxk)
             g.group = transpose(idx);
             g.group = [g.group scg];
             g.groupnum = K;
+        case 'CQI'
+            g.joinUE = g.waitingUE;
+            g.waitingUE = [];
+            g.group = [];
+            for i = 1:length(g.joinUE)
+                g.group(end+1) = CQI_mapping(allUE(g.joinUE(i)).SINR);
+            end
+            g.groupnum = 15;
     end

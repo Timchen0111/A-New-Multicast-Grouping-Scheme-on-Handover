@@ -1,7 +1,7 @@
 function report = simulation(UE_num,time,dropnum,dropout,K,mode,pptimer,handover,bwmode,groupsize)
 %Scheme: Add Ping-Pong Detection on grouping
-maxk = K;
-if mode == "GRPPD" || mode == "GRPPD_uni" || mode == "GKPPD" || mode == "GKPPD_uni" || mode == "dynamic_k2" || mode == "dynamic_k"
+%maxk = K;
+if mode == "GRPPD" || mode == "GRPPD_uni" || mode == "GKPPD" || mode == "GKPPD_uni" || mode == "dynamic_k2" || mode == "dynamic_k" || mode == "dynamic_k"
     GRPPD = true;
 else
     GRPPD = false;
@@ -18,13 +18,18 @@ end
 
 skipr = false;
 
-%groupsize = 2;
-
 if mode == "dynamic_k2"
     K = UE_num;
 end
 
-%disp(size(fad_map))
+correlated = false;
+if correlated == true
+    fads = load('t1.mat');
+    fad = fads.fad;
+    fsize = size(fad,1);
+    fad_map = fad(1,:,:);
+    fad_map = reshape(fad_map,19,900,[]);
+end
 
 all_throughput = 0;
 %pingpongarray = zeros(UE_num,1)
@@ -58,7 +63,7 @@ gNB.waitingUE = [];
 gNB.scUE = [];
 gNB.group = []; 
 gNB.worstSINR = zeros(K);
-gNB.std = 0;
+%gNB.std = 0;
 if GRPPD ==false
     groupnum = K;
 else
@@ -84,7 +89,11 @@ for i=1:(UE_num+fixed)
     end
     UE(i).num = i;
     UE(i).pos = X;%generate random initial position of UEs
-    now_ = now_gNB(UE(i),gNB,noise,handover);
+    if correlated == false
+        now_ = now_gNB(UE(i),gNB,noise,handover);
+    else
+        now_ = now_gNB(UE(i),gNB,noise,handover,fad_map);
+    end
     UE(i).now_gNB = now_(1);
     UE(i).SINR = now_(2);
     UE(i).change_admission = false;
@@ -139,7 +148,23 @@ for t=1:time %600 %1 minutes Unit:100ms
     item = item+1;
 
     %Only change grouping on t%10 = 0
-    
+    if correlated == true
+        if item > fsize
+            %pause(20*rand());
+            item = 1;
+            faditem = faditem+1;
+            disp(faditem)
+            %s.wait();  
+            fads = load_helper(faditem);        
+                    %s.release();
+            fad = fads.fad;
+            fad_map =  fad(item,:,:,:);
+            fad_map = reshape(fad_map,19,900,[]);
+        else
+            fad_map = fad(item,:,:,:);
+            fad_map = reshape(fad_map,19,900,[]);
+        end
+    end
     if t == 1
         for i = 1:7 
             if groupsize > 0
@@ -155,7 +180,7 @@ for t=1:time %600 %1 minutes Unit:100ms
     else
         skip = true;
     end
-    
+    %break
     %Moving stage 
     %disp('--------move stage-------')
     for i=1:UE_num
@@ -174,7 +199,11 @@ for t=1:time %600 %1 minutes Unit:100ms
         %disp(UE(i).pptimer)
         %The algorithm there is based on "Reducing Ping-Pong Handover Effects In Intra EUTRA Networks".
         old = UE(i).now_gNB;
-        Now = now_gNB(UE(i),gNB,noise,handover);
+        if correlated == false
+            Now = now_gNB(UE(i),gNB,noise,handover);
+        else
+            Now = now_gNB(UE(i),gNB,noise,handover,fad_map);
+        end
         now = Now(1);
         UE(i).SINR = Now(3);
 
@@ -326,7 +355,7 @@ for t=1:time %600 %1 minutes Unit:100ms
                     scnum = numel(gNB(i).scUE);
                     gNB(i).scUE = [];
                     if scnum ~=0
-                        sc = K+1:K+scnum;
+                        sc = gNB(i).groupnum+1:gNB(i).groupnum+scnum;
                     else
                         sc = [];
                     end
@@ -567,6 +596,28 @@ for t=1:time %600 %1 minutes Unit:100ms
         end
     
 end
+
+%Update worst SINR
+        for index = 1:7
+            if isempty(gNB(index).joinUE)
+                gNB(index).worstSINR = [];
+                continue
+            end
+            groupnum = max(gNB(index).group);
+            for group_now = 1:groupnum
+                ingroup = gNB(index).joinUE(find(gNB(index).group == group_now));
+                worst = inf;
+                for i = 1:numel(ingroup)
+                    if UE(ingroup(i)).SINR<worst
+                        worst = UE(ingroup(i)).SINR;
+                    end
+                end                
+                gNB(index).worstSINR(group_now) = worst;
+            end
+            gNB(index).worstSINR(groupnum+1:end) = [];
+        end
+
+
 disp('----------------------REPORT----------------------')
 sc_rate = sctime./(sctime+staytime);
 sc_ratio = sc_rate(1);
@@ -580,27 +631,27 @@ sc_ratio = sc_rate(1);
 % disp(sc_sinr)
 %std_ = [0 0 0 0 0 0 0];
 for i = 1:7
-    % The following code is for a new method%
-     a = gNB(i).worstSINR;
-     a(a==inf) = [];
-     a = log2(1+10.^(a./10));
-     a = sort(a);
-     member_num = zeros(1,max(gNB(i).group));
-     for j = 1:max(gNB(i).group)
-         member_num(j) = nnz(gNB(i).group==j);
-     end
-     member_num(member_num==0) = [];
-     check = zeros(1,length(a)-1);
-     if length(a) >= 1
-         for k = 1:length(a)-1
-             check(k) = (a(k+1)/a(k))/(2+member_num(k)/member_num(k+1));
-         end
-         gNB(i).std = check;
-     else
-         gNB(i).std = [];
-     end
-    % The following code is for a new method%
-     gNB(i)
+%     % The following code is for a new method%
+%      a = gNB(i).worstSINR;
+%      a(a==inf) = [];
+%      a = log2(1+10.^(a./10));
+%      a = sort(a);
+%      member_num = zeros(1,max(gNB(i).group));
+%      for j = 1:max(gNB(i).group)
+%          member_num(j) = nnz(gNB(i).group==j);
+%      end
+%      member_num(member_num==0) = [];
+%      check = zeros(1,length(a)-1);
+%      if length(a) >= 1
+%          for k = 1:length(a)-1
+%              check(k) = (a(k+1)/a(k))/(2+member_num(k)/member_num(k+1));
+%          end
+%          gNB(i).std = check;
+%      else
+%          gNB(i).std = [];
+%      end
+%     % The following code is for a new method%
+      gNB(i)
 end
 
 for i=1:(UE_num+fixed)
