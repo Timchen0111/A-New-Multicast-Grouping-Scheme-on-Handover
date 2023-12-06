@@ -16,15 +16,16 @@ else
 end
 
 LOS_test = rand();
+%disp(LOS_test);
 if LOS_test<pr_los
     LOS = true;
 else
     LOS = false;
 end
-%LOS = true; %LOS
-
-dbp = 2*pi*Hbs*Hut*fc*(1e9)/c;
+LOS=true;%test
+dbp = 4*(Hbs-1)*(Hut-1)*fc*(1e9)/c;
 PL1 = 28+22*log10(d3d)+20*log10(fc);
+%disp(9*log10((dbp)^2+(Hbs-Hut)^2))
 PL2 = 28+40*log10(d3d)+20*log10(fc)-9*log10((dbp)^2+(Hbs-Hut)^2);
     
 if d2d<dbp
@@ -40,6 +41,9 @@ if LOS == true
 else
     %NLOS
     PL_nlos = 13.54+39.08*log10(d3d)+20*log10(fc)-0.6*(Hut-1.5);
+    %disp('---------');
+    %disp(PL_los);
+    %disp(PL_nlos);
     PL = max(PL_los,PL_nlos);
 end
 r = [PL LOS];

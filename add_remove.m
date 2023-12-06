@@ -23,6 +23,7 @@ function g = add_remove(gNB,UE,command)
     end
 
     if command == 3 %add UE to SC group         
+        %disp('ADD UE')
         UE.num;
         if numel(find(g.scUE==UE.num))>0
             UE.num;

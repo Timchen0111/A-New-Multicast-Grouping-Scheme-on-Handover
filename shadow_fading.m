@@ -8,6 +8,7 @@ for index = 1:19
         sf = zeros(num);
         %generate random fading(normal RV)
         rf = sigma.*randn(num,num);
+        
         %generate R matrix
         %R = [1 cf(md) cf(2*md) cf(md) cf(sqrt(2)*md);cf(md) 1 cf(md) cf(sqrt(2)*md) cf(md);cf(2*md) cf(md) 1 cf(sqrt(5)*md) cf(sqrt(2)*md);cf(md) cf(sqrt(2)*md) cf(sqrt(5)*md) 1 cf(md);cf(sqrt(2)*md) cf(md) cf(sqrt(2)*md) cf(md) 1];
         R = R_generation(index,md,0);

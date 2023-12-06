@@ -1,6 +1,7 @@
-function report = simulation(UE_num,time,dropnum,dropout,K,mode,pptimer,handover,bwmode,groupsize)
-%Scheme: Add Ping-Pong Detection on grouping
-if mode == "GRPPD" || mode == "GRPPD_uni" || mode == "GKPPD" || mode == "GKPPD_uni" || mode == "dynamic_k2" || mode == "dynamic_k"
+function report = simulation_nf(UE_num,time,dropnum,dropout,K,mode,pptimer,handover,bwmode,s)
+fixed = 0;
+fad_map = 0;
+if mode == "GRPPD" || mode == "GRPPD_uni" || mode == "GKPPD" || mode == "GKPPD_uni" || mode == "dynamic_k" || mode == "new_k"
     GRPPD = true;
 else
     GRPPD = false;
@@ -15,21 +16,14 @@ else
     end
 end
 
-skipr = false;
-
-%groupsize = 2;
-
-if mode == "dynamic_k2"
+if mode == "dynamic_k" || mode == "dynamic_k2" ||mode == "new_k"
     K = UE_num;
 end
 
-fads = load('t1.mat');
-fad = fads.fad;
-fsize = size(fad,1);
+skipr = false;
 
-fad_map = fad(1,:,:);
-fad_map = reshape(fad_map,19,900,[]);
-%disp(size(fad_map))
+s.wait();
+
 
 all_throughput = 0;
 %pingpongarray = zeros(UE_num,1)
@@ -63,7 +57,6 @@ gNB.waitingUE = [];
 gNB.scUE = [];
 gNB.group = []; 
 gNB.worstSINR = zeros(K);
-gNB.std = 0;
 if GRPPD ==false
     groupnum = K;
 else
@@ -81,10 +74,10 @@ gNB = set_gNB(gNB,UE_num,K);
 
 bw = 1e8;
 noise = -174+10*log10(bw); %db
-fixed = 0;
+
 for i=1:(UE_num+fixed)
     X = [inf,inf];
-    while boundary(X(1),X(2),gNB) == false
+    while boundary(X(1),X(2)) == false
         X = 1000*rand(2,1)-500;
     end
     UE(i).num = i;
@@ -101,7 +94,7 @@ end
 
 %Set velocity
 for i=1:UE_num
-    UE(i).velocity = velocity(UE(i).pos,UE(i).velocity,gNB);
+    UE(i).velocity = velocity(UE(i).pos);
 end
 
 %fading map
@@ -134,45 +127,18 @@ clear x y
 
 %Loop
 for i = 1:7
-     gNB(i); 
+     gNB(i);
 end
 % for i = 1:length(UE)
 %     UE(i).pos
 % end
 item = 0;
-faditem = 1;
 for t=1:time %600 %1 minutes Unit:100ms
-    T = 10*t;
+    disp(t)
     item = item+1;
-%     if rem(t,100)==0
-%          disp(['time:' string(T) 'ms'])
-%     end
-%     %disp(['time:' string(T) 'ms'])
-    %Only change grouping on t%10 = 0
-    if item > fsize
-        %pause(20*rand());
-        item = 1;
-        faditem = faditem+1;
-        disp(faditem)
-        %s.wait();  
-        fads = load_helper(faditem);        
-                %s.release();
-        fad = fads.fad;
-        fad_map =  fad(item,:,:,:);
-        fad_map = reshape(fad_map,19,900,[]);
-
-    else
-        fad_map = fad(item,:,:,:);
-        fad_map = reshape(fad_map,19,900,[]);
-    end
     if t == 1
         for i = 1:7 
-            if groupsize > 0
-                KK = max(1,floor(numel(gNB(i).waitingUE)/groupsize));
-            else 
-                KK = K;
-            end
-            gNB(i) = regrouping(gNB(i),KK,UE,mode,bwmode,K);
+            gNB(i) = regrouping(gNB(i),K,UE,mode,bwmode);
         end
     end
     if rem(t,10) == 0
@@ -189,9 +155,9 @@ for t=1:time %600 %1 minutes Unit:100ms
             UE(i).pos(j) = UE(i).pos(j)+UE(i).velocity(j);
         end
         %check boundary
-        if boundary(UE(i).pos(1),UE(i).pos(2),gNB) == false
+        if boundary(UE(i).pos(1),UE(i).pos(2)) == false
             v = UE(i).velocity;
-            UE(i).velocity = velocity(UE(i).pos,v,gNB);
+            UE(i).velocity = velocity(UE(i).pos,v);
         end
         
         
@@ -200,7 +166,7 @@ for t=1:time %600 %1 minutes Unit:100ms
         %disp(UE(i).pptimer)
         %The algorithm there is based on "Reducing Ping-Pong Handover Effects In Intra EUTRA Networks".
         old = UE(i).now_gNB;
-        Now = now_gNB(UE(i),gNB,noise,handover,fad_map);
+        Now = now_gNB(UE(i),gNB,noise,handover,0);
         now = Now(1);
         UE(i).SINR = Now(3);
 
@@ -281,14 +247,13 @@ for t=1:time %600 %1 minutes Unit:100ms
     %drop out stage
     %disp('--------dropout stage-------')
     drop_num = zeros(1,7);
-    for i = 1:7      
+    for i = 1:7
         if skip == true
             continue
         end
-        if mode == "dynamic_k2"
+        if mode == "dynamic_k" || mode == "dynamic_k2"
             K = gNB(i).groupnum;
         end
-        
         for group_now = 1:K
             drop_out = [];
             scgroup = [];
@@ -318,8 +283,6 @@ for t=1:time %600 %1 minutes Unit:100ms
                 drop_num(i) = drop_num(i)+1;
             end
             for k = 1:numel(scgroup)
-                %disp(scgroup)
-                %error('jijwofj!!!')
                 index = scgroup(k);
                 gNB(UE(index).now_gNB) = add_remove(gNB(UE(index).now_gNB),UE(index),2);
                 gNB(UE(index).now_gNB) = add_remove(gNB(UE(index).now_gNB),UE(index),3);
@@ -339,13 +302,13 @@ for t=1:time %600 %1 minutes Unit:100ms
         if GRPPD == true
             if uni == false
                 for i = 1:7
-                    if mode == "dynamic_k2"
+                    if mode == "dynamic_k" || mode == "dynamic_k2" || mode == "new_k"
                         K = gNB(i).groupnum;
                     end
                     gNB(i).joinUE = [gNB(i).joinUE gNB(i).scUE];
                     scnum = numel(gNB(i).scUE);
                     gNB(i).scUE = [];
-                    sc(1:scnum) = K+1; 
+                    sc(1:scnum) = K+1;
                     gNB(i).group = [gNB(i).group sc];
                     sc = [];
                 end
@@ -390,7 +353,7 @@ for t=1:time %600 %1 minutes Unit:100ms
         end
 
        for index = 1:7
-            if mode == "dynamic_k2"
+            if mode == "dynamic_k" || mode == "dynamic_k2"
                 K = gNB(index).groupnum;
             end
             if regroup(index) == false
@@ -485,14 +448,7 @@ for t=1:time %600 %1 minutes Unit:100ms
                         gNB(i) = add_remove(gNB(i),UE(ue),2);
                         gNB(i) = add_remove(gNB(i),UE(ue),1);
                     end
-                    if groupsize > 0
-                        KK = max(1,floor(numel(gNB(i).waitingUE)/groupsize));
-                    else 
-                        KK = K;
-                    end
-                    
-                    
-                    gNB(i) = regrouping(gNB(i),KK,UE,mode,bwmode,K);     
+                    gNB(i) = regrouping(gNB(i),K,UE,mode,bwmode);     
                     %ggnum(gNB(i).groupnum) = ggnum(gNB(i).groupnum)+1;
                 end
             end
@@ -539,9 +495,6 @@ for t=1:time %600 %1 minutes Unit:100ms
                 gNB(index).worstSINR(group_now) = worst;
             end
             gNB(index).worstSINR(groupnum+1:end) = [];
-            gs = gNB(index).worstSINR;
-            gs(gs==inf)=[];
-            gNB(index).groupnum = length(gs);
         end
         
         %Bandwidth Allocation
@@ -607,28 +560,7 @@ sc_ratio = sc_rate(1);
 % disp(stay_sinr)
 % disp('sc_sinr')
 % disp(sc_sinr)
-%std_ = [0 0 0 0 0 0 0];
 for i = 1:7
-    % The following code is for a new method%
-     a = gNB(i).worstSINR;
-     a(a==inf) = [];
-     a = log2(1+10.^(a./10));
-     a = sort(a);
-     member_num = zeros(1,max(gNB(i).group));
-     for j = 1:max(gNB(i).group)
-         member_num(j) = nnz(gNB(i).group==j);
-     end
-     member_num(member_num==0) = [];
-     check = zeros(1,length(a)-1);
-     if length(a) >= 1
-         for k = 1:length(a)-1
-             check(k) = (a(k+1)/a(k))/(2+member_num(k)/member_num(k+1));
-         end
-         gNB(i).std = check;
-     else
-         gNB(i).std = [];
-     end
-    % The following code is for a new method%
      gNB(i)
 end
 
@@ -645,11 +577,13 @@ end
 figure(2)
 c = gNB_color(UE);
 scatter(x,y,[],c)
-% for i = 1:numel(UE)
-%     UE(i).pos
-%     UE(i).SINR
-% end
+
 %UE.SINR
 average_throughput = all_throughput/time;
-report = average_throughput;
-%report = mean(std_); %Regroup_count change sc_ratio];
+% average_efficiency
+%disp(Regroup_count)
+% change
+report = average_throughput; %Regroup_count change sc_ratio];
+%pingpongarray(1)
+%figure(3)
+%ggnum

@@ -42,6 +42,26 @@ else
             end
         end
     else
-        error("wrong use")
+        if mode == "member"
+            for i = 1:7
+                if isempty(g(i).group)
+                    g(i).bw = [];
+                    continue
+                end
+                num_g = zeros(1,max(g(i).group));
+                for j = 1:numel(num_g)
+                    num_g(j) = numel(g(i).group(g(i).group == j));
+                end
+                g(i).bw = zeros(1,max(g(i).group));
+                for j = 1:max(g(i).group)
+                    if g(i).worstSINR(j)~=inf
+                        %disp(num_g)
+                        g(i).bw(j) = bw*(num_g(j)/sum(num_g));
+                    end
+                end
+            end
+        else
+            error("wrong use")
+        end
     end
 end
