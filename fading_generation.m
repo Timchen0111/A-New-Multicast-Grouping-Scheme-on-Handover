@@ -9,4 +9,4 @@ end
 fad = round(fad,2);
 
 n = num2str(count);
-save(['t2_' n],'fad');
+save(['t' n],'fad');
