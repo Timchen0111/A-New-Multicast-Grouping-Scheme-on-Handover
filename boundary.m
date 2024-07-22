@@ -1,22 +1,13 @@
-function judge = boundary(x,y)
-if y>100*sqrt(3) || y<-100*sqrt(3)
+function judge = boundary(x,y,gNB)
+if sqrt(x^2+y^2) > 850 %1.8*500
     judge = false;
+    return
 else
-    if x<100 && x>-100
-        judge = true;
-    else
-        if x<-100
-            if y<sqrt(3)*x+200*sqrt(3) && y>-sqrt(3)*x-200*sqrt(3)
-                judge = true;
-            else
-                judge = false;
-            end
-        else
-            if y<-sqrt(3)*x+200*sqrt(3) && y>sqrt(3)*x-200*sqrt(3)
-                judge = true;
-            else
-                judge = false;
-            end
-        end
+    judge = true;
+end
+for i = 1:19
+    if norm(gNB(i).pos-[x,y])<35
+        judge = false;
+        return
     end
 end

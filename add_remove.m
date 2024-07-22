@@ -9,7 +9,7 @@ function g = add_remove(gNB,UE,command)
             error('repeat UE')
         end
         g.waitingUE(end+1) = UE.num;            
-        end
+    end
 
     if command == 2 %remove UE
         %disp('REMOVE UE')

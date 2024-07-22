@@ -1,76 +1,17 @@
-function main = main(mode,UE_num,time)
+function main = main(mode,UE_num,time,pptimer,MRN,groupsize,RM,outage,handover)
 switch mode
-     case 'unicast'
-        error('Not finished')
-     case 'greedy' 
-        error('Not finished')
-     case 'kmeans'
-        disp('K-means');
-        %{
-        dropnum = input('How many UEs be dropped out should we regroup?');
-        dropout = input('Durable SINR(db)');
-        K = input('Number of group');
-        %}
-        dropnum = 5;
-        dropout = 5;
-        K = 5;
-        simulation(UE_num,time,dropnum,dropout,K,'kmeans')
-     case 'random'
-        disp('Grouping randomly');
-        %{
-        dropnum = input('How many UEs be dropped out should we regroup?');
-        dropout = input('Dropout value');
-        K = input('Number of group');
-        %}
-        dropnum = 5;
-        dropout = 5;
-        K = 5;
-        simulation(UE_num,time,dropnum,dropout,K,'random')
-     case 'GRPPD'
-        disp('Grouping randomly and Ping-Pong Detection');
-        %{
-        dropnum = input('How many UEs be dropped out should we regroup?');
-        dropout = input('Dropout value');
-        K = input('Number of group');
-        %}
-        dropnum = 5;
-        dropout = 5;
-        K = 5;
-        simulation(UE_num,time,dropnum,dropout,K,'GRPPD')
-    case 'GKPPD'
-        disp('Grouping with Ping-Pong Detection and Kmeans.');
-        %{
-        dropnum = input('How many UEs be dropped out should we regroup?');
-        dropout = input('Dropout value');
-        K = input('Number of group');
-        %}
-        dropnum = 10;
-        dropout = 5;
-        K = 10;
-        simulation(UE_num,time,dropnum,dropout,K,'GKPPD')
-     case 'GRPPD-UNI'
-        disp('Grouping randomly and Ping-Pong Detection. Using unicast for UE in HO.');
-        %{
-        dropnum = input('How many UEs be dropped out should we regroup?');
-        dropout = input('Dropout value');
-        K = input('Number of group');
-        %}
-        dropnum = 5;
-        dropout = 5;
-        K = 5;
-        simulation_uni(UE_num,time,dropnum,dropout,K,'GRPPD')
-     case 'GKPPD-UNI'
-        disp('Grouping with Ping-Pong Detection and Kmeans. Using unicast for UE in HO.');
-        %{
-        dropnum = input('How many UEs be dropped out should we regroup?');
-        dropout = input('Dropout value');
-        K = input('Number of group');
-        %}
-        dropnum = 10;
-        dropout = 5;
-        K = 10;
-        simulation_uni(UE_num,time,dropnum,dropout,K,'GKPPD')
-     otherwise
-        error( 'WRONG USE.' )
- end
-
+       case 1
+          main = simulation(UE_num,time,MRN,RM,'CQI',pptimer,handover,groupsize,outage);
+       case 2
+          main = simulation(UE_num,time,MRN,RM,'unicast',pptimer,handover,groupsize,outage);
+       case 3
+          main = simulation(UE_num,time,MRN,RM,'kmeans',pptimer,handover,groupsize,outage);
+       case 4
+          main = simulation(UE_num,time,MRN,RM,'ours',pptimer,handover,groupsize,outage);
+       case 5
+          main = simulation(UE_num,time,MRN,RM,'VG',pptimer,handover,groupsize,outage);
+       case 6
+          main = simulation(UE_num,time,MRN,RM,'broadcast',pptimer,handover,groupsize,outage)
+       otherwise
+         error('WRONG USE.') 
+end
