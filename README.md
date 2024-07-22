@@ -10,6 +10,7 @@
      ```
 
 2. **Parameters:**
+   - `mode`: 1 for CQI grouping, 2 for unicast, 3 for our designed method, 4 for group partitioning and 5 for broadcast.
    - `UE_num`: Number of UEs
    - `time`: Simulation time (unit: seconds)
    - `pptimer`: TTT (time to trigger)
@@ -21,7 +22,7 @@
 
    - Note: `RM` and `MRN` are only used for our designed method. You can set arbitrary values for these parameters when using other schemes.
 
-3. **Simulation support:**
+4. **Simulation support:**
    - The simulation supports several different schemes:
      - CQI grouping
      - Group partition method
@@ -29,6 +30,6 @@
      - Broadcast
      - Our proposed method
 
-4. **Before executing the simulation code:**
+5. **Before executing the simulation code:**
    - Run `generate_fading.m` to generate random fading maps.
    - **Note:** The size of the fading data may be large.
