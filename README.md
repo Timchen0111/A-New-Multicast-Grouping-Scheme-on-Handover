@@ -33,4 +33,4 @@
 
 5. **Before executing the simulation code:**
    - Run `generate_fading.m` to generate random fading maps.
-   - **Note:** The size of the fading data may be large.
+   - **Note:** The size of the fading data may be large. (about 100Gb)
