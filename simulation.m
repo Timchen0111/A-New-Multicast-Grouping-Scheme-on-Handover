@@ -1,4 +1,4 @@
-function report = simulation(UE_num,time,dropnum,dropout,mode,pptimer,handover,bwmode,groupsize,outage)
+function report = simulation(UE_num,time,dropnum,dropout,mode,pptimer,handover,groupsize,outage)
 out_prob = [];
 if mode == "ours" 
     ho = true;
