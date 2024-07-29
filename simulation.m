@@ -14,6 +14,7 @@ else
     K = 100;
 end
 time = time*10;
+pptimer = pptimer*10;
 bwmode = "same";
 UESINR = zeros(1,UE_num);
 UEthroughput = zeros(1,1);
