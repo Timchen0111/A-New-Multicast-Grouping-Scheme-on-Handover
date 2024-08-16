@@ -46,7 +46,6 @@ UE.SINR = 0;
 UE.change_admission = false;
 UE.pptimer = 0;
 UE.ppsave = [];
-UE.ppDrop = false;
 UE.state = 0;
 gNB.num = 0;
 gNB.pos = [inf,inf];
@@ -273,7 +272,6 @@ for t=1:time %600 %1 minutes Unit:100ms
             for j = 1:numel(ingroup)
                 sinr(j) = UE(ingroup(j)).SINR;
                 ppDrop(j) = UE(ingroup(j)).pptimer;
-                UE(ingroup(j)).ppDrop = false;
             end
             mean(sinr);
             for j = 1:numel(ingroup)
@@ -612,7 +610,6 @@ for i=1:19
     x(end+1) = gNB(i).pos(1);
     y(end+1) = gNB(i).pos(2);
 end
-
 outage_prob = mean(out_prob);
 average_throughput = all_throughput/time;
 cellt = {UEthroughput};
