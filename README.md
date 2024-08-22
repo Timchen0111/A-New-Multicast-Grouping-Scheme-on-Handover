@@ -1,7 +1,7 @@
 ### A New Multicast Grouping Scheme on Handover
 
 #### This code is for the research "Mobility-Enabled Dynamic Grouping for Multicast Broadcast Service". 
-(This research will be published on IEEE transactions on broadcasting)
+https://ieeexplore.ieee.org/document/10639611
 
 1. **To run the code:**
    - Execute `main.m`.
